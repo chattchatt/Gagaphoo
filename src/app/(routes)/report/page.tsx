@@ -1,7 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '@/lib/db';
 import { formatCurrency } from '@/lib/format';
+import CategoryPieChart from '@/components/charts/CategoryPieChart';
+import MonthlyBarChart from '@/components/charts/MonthlyBarChart';
+import TrendLineChart from '@/components/charts/TrendLineChart';
 
 // 차트 탭 타입
 type ChartTab = 'pie' | 'bar' | 'line';
@@ -14,17 +19,26 @@ function getMonthLabel(year: number, month: number): string {
   });
 }
 
-// placeholder 리포트 데이터
-const reportData = {
-  totalExpense: 324500,
-  categories: [
-    { name: '식비', amount: 120000, icon: '🍱', color: '#3182F6' },
-    { name: '교통', amount: 45000, icon: '🚇', color: '#34C759' },
-    { name: '카페', amount: 38000, icon: '☕', color: '#FF9500' },
-    { name: '쇼핑', amount: 80000, icon: '🛍️', color: '#FF3B30' },
-    { name: '기타', amount: 41500, icon: '📌', color: '#8B95A1' },
-  ],
-};
+// "YYYY-MM" 문자열 생성 헬퍼
+function toMonthKey(year: number, month: number): string {
+  return `${year}-${String(month).padStart(2, '0')}`;
+}
+
+// 최근 N개월 "YYYY-MM" 배열 반환 (현재 월 포함, 내림차순)
+function getRecentMonths(year: number, month: number, count: number): string[] {
+  const result: string[] = [];
+  let y = year;
+  let m = month;
+  for (let i = 0; i < count; i++) {
+    result.push(toMonthKey(y, m));
+    m -= 1;
+    if (m === 0) {
+      m = 12;
+      y -= 1;
+    }
+  }
+  return result; // 최신 → 오래된 순
+}
 
 const chartTabs: { id: ChartTab; label: string }[] = [
   { id: 'pie', label: '파이' },
@@ -37,6 +51,8 @@ export default function ReportPage() {
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [activeTab, setActiveTab] = useState<ChartTab>('pie');
+
+  const currentMonthKey = toMonthKey(year, month);
 
   // 이전 달로 이동
   const goToPrevMonth = () => {
@@ -57,6 +73,98 @@ export default function ReportPage() {
       setMonth((m) => m + 1);
     }
   };
+
+  // 선택 월의 지출 거래 + 카테고리 조회
+  const monthlyData = useLiveQuery(async () => {
+    // 선택 월 범위 (YYYY-MM-DD 형식)
+    const startDate = `${currentMonthKey}-01`;
+    const endDate = `${currentMonthKey}-31`;
+
+    // 선택 월 지출 거래
+    const txns = await db.transactions
+      .where('date')
+      .between(startDate, endDate, true, true)
+      .filter((t) => t.type === 'expense')
+      .toArray();
+
+    // 카테고리 맵 생성
+    const categories = await db.categories.toArray();
+    const categoryMap = new Map(categories.map((c) => [c.id, c]));
+
+    // 카테고리별 집계
+    const categoryTotals = new Map<number, number>();
+    for (const txn of txns) {
+      categoryTotals.set(txn.categoryId, (categoryTotals.get(txn.categoryId) ?? 0) + txn.amount);
+    }
+
+    // 차트용 데이터: 카테고리 정보 포함, 0원 제외, 금액 내림차순
+    const categoryData = Array.from(categoryTotals.entries())
+      .map(([catId, amount]) => {
+        const cat = categoryMap.get(catId);
+        return {
+          name: cat?.name ?? '알 수 없음',
+          amount,
+          color: cat?.color ?? '#94A3B8',
+          icon: cat?.icon ?? '📌',
+        };
+      })
+      .filter((d) => d.amount > 0)
+      .sort((a, b) => b.amount - a.amount);
+
+    const totalExpense = categoryData.reduce((sum, d) => sum + d.amount, 0);
+
+    return { categoryData, totalExpense };
+  }, [currentMonthKey]);
+
+  // 최근 6개월 월별 총 지출 집계 (막대/라인 차트용)
+  const monthlyTrendData = useLiveQuery(async () => {
+    // 최근 6개월 목록 (오래된 → 최신 순으로 반전)
+    const months = getRecentMonths(year, month, 6).reverse();
+
+    const result: { month: string; amount: number }[] = [];
+
+    for (const monthKey of months) {
+      const startDate = `${monthKey}-01`;
+      const endDate = `${monthKey}-31`;
+
+      const txns = await db.transactions
+        .where('date')
+        .between(startDate, endDate, true, true)
+        .filter((t) => t.type === 'expense')
+        .toArray();
+
+      const total = txns.reduce((sum, t) => sum + t.amount, 0);
+      result.push({ month: monthKey, amount: total });
+    }
+
+    return result;
+  }, [year, month]);
+
+  // 전월 지출 (증감 비교용)
+  const prevMonthData = useLiveQuery(async () => {
+    const prevMonth = month === 1 ? 12 : month - 1;
+    const prevYear = month === 1 ? year - 1 : year;
+    const prevMonthKey = toMonthKey(prevYear, prevMonth);
+    const startDate = `${prevMonthKey}-01`;
+    const endDate = `${prevMonthKey}-31`;
+
+    const txns = await db.transactions
+      .where('date')
+      .between(startDate, endDate, true, true)
+      .filter((t) => t.type === 'expense')
+      .toArray();
+
+    return txns.reduce((sum, t) => sum + t.amount, 0);
+  }, [year, month]);
+
+  const totalExpense = monthlyData?.totalExpense ?? 0;
+  const categoryData = monthlyData?.categoryData ?? [];
+  const trendData = monthlyTrendData ?? [];
+
+  // 전월 대비 증감 계산
+  const prevTotal = prevMonthData ?? 0;
+  const diff = totalExpense - prevTotal;
+  const hasDiff = prevTotal > 0 || totalExpense > 0;
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
@@ -95,12 +203,21 @@ export default function ReportPage() {
           </div>
         </section>
 
-        {/* 총 지출 요약 */}
+        {/* 총 지출 요약 + 전월 대비 증감 */}
         <section className="bg-white rounded-2xl p-5 shadow-sm">
           <p className="text-sm text-gray-500 mb-1">총 지출</p>
           <p className="text-3xl font-bold text-gray-900">
-            {formatCurrency(reportData.totalExpense)}
+            {formatCurrency(totalExpense)}
           </p>
+          {/* 전월 대비 증감 표시 — 데이터가 있을 때만 */}
+          {hasDiff && (
+            <p className={`text-sm mt-1.5 font-medium ${diff > 0 ? 'text-red-500' : diff < 0 ? 'text-green-500' : 'text-gray-400'}`}>
+              {diff > 0 ? '↑' : diff < 0 ? '↓' : '–'}{' '}
+              {diff !== 0
+                ? `전월 대비 ${formatCurrency(Math.abs(diff))}`
+                : '전월과 동일'}
+            </p>
+          )}
         </section>
 
         {/* 차트 영역 — 탭 전환 */}
@@ -123,16 +240,17 @@ export default function ReportPage() {
             ))}
           </div>
 
-          {/* 차트 placeholder 영역 */}
-          <div className="flex items-center justify-center h-56 text-gray-300">
-            <div className="text-center">
-              <p className="text-4xl mb-2">
-                {activeTab === 'pie' ? '🥧' : activeTab === 'bar' ? '📊' : '📈'}
-              </p>
-              <p className="text-sm">
-                {activeTab === 'pie' ? '파이 차트' : activeTab === 'bar' ? '막대 차트' : '라인 차트'} 준비 중
-              </p>
-            </div>
+          {/* 실제 차트 컴포넌트 */}
+          <div className="p-4">
+            {activeTab === 'pie' && (
+              <CategoryPieChart data={categoryData} />
+            )}
+            {activeTab === 'bar' && (
+              <MonthlyBarChart data={trendData} currentMonth={currentMonthKey} />
+            )}
+            {activeTab === 'line' && (
+              <TrendLineChart data={trendData} />
+            )}
           </div>
         </section>
 
@@ -141,30 +259,40 @@ export default function ReportPage() {
           <h2 className="px-5 pt-4 pb-2 text-sm font-semibold text-gray-700">
             카테고리별 지출
           </h2>
-          <ul className="divide-y divide-gray-50">
-            {reportData.categories.map((cat) => {
-              const percent = Math.round((cat.amount / reportData.totalExpense) * 100);
-              return (
-                <li key={cat.name} className="px-5 py-3">
-                  <div className="flex items-center gap-3 mb-1.5">
-                    <span className="text-xl">{cat.icon}</span>
-                    <span className="flex-1 text-sm font-medium text-gray-900">{cat.name}</span>
-                    <span className="text-sm font-semibold text-gray-800">
-                      {formatCurrency(cat.amount)}
-                    </span>
-                    <span className="text-xs text-gray-400 w-8 text-right">{percent}%</span>
-                  </div>
-                  {/* 카테고리별 진행바 */}
-                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden ml-8">
-                    <div
-                      className="h-full rounded-full"
-                      style={{ width: `${percent}%`, backgroundColor: cat.color }}
-                    />
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+
+          {/* 빈 상태 */}
+          {categoryData.length === 0 ? (
+            <p className="px-5 pb-5 text-sm text-gray-400">
+              이 달의 지출 내역이 없습니다
+            </p>
+          ) : (
+            <ul className="divide-y divide-gray-50">
+              {categoryData.map((cat) => {
+                const percent = totalExpense > 0
+                  ? Math.round((cat.amount / totalExpense) * 100)
+                  : 0;
+                return (
+                  <li key={cat.name} className="px-5 py-3">
+                    <div className="flex items-center gap-3 mb-1.5">
+                      <span className="text-xl">{cat.icon}</span>
+                      <span className="flex-1 text-sm font-medium text-gray-900">{cat.name}</span>
+                      <span className="text-sm font-semibold text-gray-800">
+                        {formatCurrency(cat.amount)}
+                      </span>
+                      <span className="text-xs text-gray-400 w-8 text-right">{percent}%</span>
+                    </div>
+                    {/* 카테고리별 진행바 */}
+                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden ml-8">
+                      <div
+                        className="h-full rounded-full"
+                        style={{ width: `${percent}%`, backgroundColor: cat.color }}
+                      />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </section>
       </div>
     </div>
