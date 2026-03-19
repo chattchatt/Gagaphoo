@@ -36,6 +36,12 @@ yarn-error.log*
 # vercel
 .vercel
 
+# omc state
+.omc/
+
+# serwist build output
+/public/sw.js
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

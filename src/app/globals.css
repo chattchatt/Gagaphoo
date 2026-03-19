@@ -1,26 +1,77 @@
+/* Pretendard 웹폰트 import — @import는 @theme보다 앞에 위치해야 함 */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+
 @import "tailwindcss";
 
+/* 토스 테마 CSS 변수 + 커스텀 색상/폰트 등록 */
+@theme {
+  /* Pretendard 폰트 */
+  --font-pretendard: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui,
+    Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo",
+    "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", sans-serif;
+
+  /* 토스 블루 팔레트 */
+  --color-blue-50: #EBF5FF;
+  --color-blue-100: #CCE5FF;
+  --color-blue-500: #3182F6;
+  --color-blue-600: #1B64DA;
+  --color-blue-700: #1957B3;
+
+  /* 토스 그레이 팔레트 */
+  --color-gray-50: #F9FAFB;
+  --color-gray-100: #F2F4F6;
+  --color-gray-200: #E5E8EB;
+  --color-gray-300: #D1D6DB;
+  --color-gray-400: #B0B8C1;
+  --color-gray-500: #8B95A1;
+  --color-gray-600: #6B7684;
+  --color-gray-700: #4E5968;
+  --color-gray-800: #333D4B;
+  --color-gray-900: #191F28;
+
+  /* 시맨틱 색상 */
+  --color-success: #34C759;
+  --color-warning: #FF9500;
+  --color-error: #FF3B30;
+  --color-info: #3182F6;
+}
+
+/* 라이트 모드 기본값 */
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #191F28;
+  --surface: #F9FAFB;
+  --border: #E5E8EB;
+  --primary: #3182F6;
+  --primary-hover: #1B64DA;
+  --text-primary: #191F28;
+  --text-secondary: #6B7684;
+  --text-tertiary: #B0B8C1;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* 다크모드 변수 (.dark 클래스 전략) */
+.dark {
+  --background: #191F28;
+  --foreground: #F9FAFB;
+  --surface: #333D4B;
+  --border: #4E5968;
+  --primary: #3182F6;
+  --primary-hover: #CCE5FF;
+  --text-primary: #F9FAFB;
+  --text-secondary: #B0B8C1;
+  --text-tertiary: #6B7684;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-pretendard);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* iOS safe area 하단 여백 지원 */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom);
 }
