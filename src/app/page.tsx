@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, type Transaction, type Category } from '@/lib/db';
+import { db, type Transaction, type Category, type Budget } from '@/lib/db';
 import { initializeDB } from '@/lib/seed';
 import { formatCurrency } from '@/lib/format';
 import TransactionDetail from '@/components/TransactionDetail';
@@ -83,6 +83,31 @@ export default function HomePage() {
     0,
   );
 
+  // 이번 달 예산 설정 여부 및 총 예산 실시간 조회
+  const monthlyBudgets = useLiveQuery<Budget[], Budget[]>(
+    () => db.budgets.where('month').equals(thisMonthPrefix).toArray(),
+    [thisMonthPrefix],
+    [],
+  );
+
+  // 총 예산 합산
+  const totalBudget = monthlyBudgets.reduce(
+    (sum: number, b: Budget) => sum + b.amount,
+    0,
+  );
+
+  // 예산 사용률 (0~100 이상)
+  const budgetPercent =
+    totalBudget > 0 ? Math.min(Math.round((monthlyTotal / totalBudget) * 100), 100) : 0;
+
+  // 진행바 색상: 80% 이상 주황, 100% 이상 빨강, 그 외 토스 블루
+  const progressColor =
+    monthlyTotal >= totalBudget && totalBudget > 0
+      ? 'bg-red-500'
+      : budgetPercent >= 80
+        ? 'bg-orange-400'
+        : 'bg-[#3182F6]';
+
   // 오늘 총 지출
   const todayTotal = todayTransactions.reduce(
     (sum: number, t: Transaction) => sum + t.amount,
@@ -127,6 +152,35 @@ export default function HomePage() {
           <p className="text-3xl font-bold text-gray-900">
             {formatCurrency(monthlyTotal)}
           </p>
+
+          {/* 예산 진행바 — 예산 설정 시 표시 */}
+          {totalBudget > 0 ? (
+            <div className="mt-4">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs text-gray-400">
+                  예산 {formatCurrency(totalBudget)} 중 {budgetPercent}% 사용
+                </span>
+                <span className="text-xs text-gray-400">
+                  {formatCurrency(totalBudget - monthlyTotal > 0 ? totalBudget - monthlyTotal : 0)} 남음
+                </span>
+              </div>
+              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${progressColor}`}
+                  style={{ width: `${budgetPercent}%` }}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="mt-4">
+              <Link
+                href="/settings/budget"
+                className="text-xs text-[#3182F6] hover:underline"
+              >
+                예산을 설정하세요 →
+              </Link>
+            </div>
+          )}
 
           {/* 카테고리별 상위 지출 — 지출이 있을 때만 표시 */}
           {topCategories.length > 0 && (

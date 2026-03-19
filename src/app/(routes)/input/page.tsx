@@ -6,6 +6,7 @@ import { parseCurrencyInput, formatCurrency } from '@/lib/format';
 import { initializeDB } from '@/lib/seed';
 import { db, type Category } from '@/lib/db';
 import { updateCacheOnUserCorrection } from '@/lib/ai-cache';
+import { useBudgetAlert } from '@/hooks/useBudgetAlert';
 
 // 수입 전용 카테고리 이름 목록
 const INCOME_CATEGORY_NAMES = ['기타수입', '급여'];
@@ -75,6 +76,9 @@ export default function InputPage() {
     }
     loadCategories();
   }, []);
+
+  // 예산 알림 훅
+  const { checkAndNotify } = useBudgetAlert();
 
   // 금액 자동 포커스
   useEffect(() => {
@@ -205,6 +209,9 @@ export default function InputPage() {
       });
 
       setToast('저장 완료');
+
+      // 거래 저장 후 예산 임계값 알림 확인
+      await checkAndNotify();
 
       // 토스트 표시 후 홈으로 이동
       setTimeout(() => {

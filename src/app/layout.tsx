@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import BottomNav from '@/components/layout/BottomNav';
 import Sidebar from '@/components/layout/Sidebar';
+import NotificationPermissionInit from '@/components/NotificationPermissionInit';
 
 export const metadata: Metadata = {
   title: 'GaGapHoo',
@@ -16,6 +17,9 @@ export default function RootLayout({
   return (
     <html lang="ko" className="h-full">
       <body className="h-full bg-[var(--background)] text-[var(--foreground)]">
+        {/* 앱 진입 시 브라우저 알림 권한 요청 */}
+        <NotificationPermissionInit />
+
         {/* 데스크톱: 사이드바 레이아웃 */}
         <Sidebar />
 
