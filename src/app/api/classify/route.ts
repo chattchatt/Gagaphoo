@@ -1,14 +1,14 @@
 // POST /api/classify — 거래 메모를 AI로 분류
-// 캐시 우선 조회 → 없으면 Claude API 호출
+// 캐시 우선 조회 → 없으면 Gemini API 호출
 import { NextRequest } from 'next/server';
 import { classifyTransaction } from '@/lib/ai';
 import { getCachedClassification, cacheClassification } from '@/lib/ai-cache';
 import { db } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!process.env.GEMINI_API_KEY) {
     return Response.json(
-      { error: 'ANTHROPIC_API_KEY 환경변수가 설정되지 않았습니다.' },
+      { error: 'GEMINI_API_KEY 환경변수가 설정되지 않았습니다.' },
       { status: 500 }
     );
   }
