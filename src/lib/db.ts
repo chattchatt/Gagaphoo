@@ -44,12 +44,22 @@ export interface RecurringExpense {
   createdAt: Date;
 }
 
+// AI 분류 결과 캐시
+export interface ClassificationCache {
+  id: number;
+  memoPattern: string;  // 메모 텍스트 (인덱스)
+  categoryId: number;
+  hitCount: number;
+  lastUsed: Date;
+}
+
 // Dexie 데이터베이스 클래스 정의
 class GagaphooDatabase extends Dexie {
   transactions!: EntityTable<Transaction, 'id'>;
   categories!: EntityTable<Category, 'id'>;
   budgets!: EntityTable<Budget, 'id'>;
   recurringExpenses!: EntityTable<RecurringExpense, 'id'>;
+  classificationCache!: EntityTable<ClassificationCache, 'id'>;
 
   constructor() {
     super('gagaphoo-db');
@@ -61,6 +71,15 @@ class GagaphooDatabase extends Dexie {
       categories: '++id, name',
       budgets: '++id, categoryId, month',
       recurringExpenses: '++id, categoryId, isActive',
+    });
+
+    // 버전 2: AI 분류 캐시 테이블 추가
+    this.version(2).stores({
+      transactions: '++id, date, categoryId, type',
+      categories: '++id, name',
+      budgets: '++id, categoryId, month',
+      recurringExpenses: '++id, categoryId, isActive',
+      classificationCache: '++id, memoPattern',
     });
   }
 }

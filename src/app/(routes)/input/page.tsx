@@ -1,60 +1,275 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { parseCurrencyInput, formatCurrency } from '@/lib/format';
+import { initializeDB } from '@/lib/seed';
+import { db, type Category } from '@/lib/db';
+import { updateCacheOnUserCorrection } from '@/lib/ai-cache';
 
-// 카테고리 placeholder 목록
-const categories = [
-  { id: 1, name: '식비', icon: '🍱' },
-  { id: 2, name: '카페', icon: '☕' },
-  { id: 3, name: '교통', icon: '🚇' },
-  { id: 4, name: '쇼핑', icon: '🛍️' },
-  { id: 5, name: '문화', icon: '🎬' },
-  { id: 6, name: '기타', icon: '📌' },
-];
+// 수입 전용 카테고리 이름 목록
+const INCOME_CATEGORY_NAMES = ['기타수입', '급여'];
+
+// 토스트 메시지 컴포넌트
+function Toast({ message, onClose }: { message: string; onClose: () => void }) {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 1500);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-sm px-4 py-2.5 rounded-full shadow-lg z-50 whitespace-nowrap">
+      {message}
+    </div>
+  );
+}
 
 export default function InputPage() {
-  // 금액 입력 상태
-  const [rawAmount, setRawAmount] = useState('');
-  const [memo, setMemo] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const router = useRouter();
 
-  // 숫자만 허용하는 금액 입력 핸들러
+  // 거래 타입: 지출/수입
+  const [type, setType] = useState<'expense' | 'income'>('expense');
+
+  // 금액 입력
+  const [rawAmount, setRawAmount] = useState('');
+
+  // 메모
+  const [memo, setMemo] = useState('');
+
+  // 카테고리 목록 (DB에서 로드)
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  // 선택된 카테고리 ID
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+
+  // AI 추천 카테고리 ID
+  const [aiCategoryId, setAiCategoryId] = useState<number | null>(null);
+
+  // AI 분류 로딩 상태
+  const [aiLoading, setAiLoading] = useState(false);
+
+  // 사용자가 AI 추천을 수동으로 변경했는지 여부
+  const [userModified, setUserModified] = useState(false);
+
+  // 저장 중 상태
+  const [saving, setSaving] = useState(false);
+
+  // 토스트 메시지
+  const [toast, setToast] = useState<string | null>(null);
+
+  // 금액 입력 필드 ref (자동 포커스용)
+  const amountInputRef = useRef<HTMLInputElement>(null);
+
+  // debounce 타이머 ref
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // 마지막으로 분류 요청한 메모 (중복 호출 방지)
+  const lastClassifiedMemo = useRef<string>('');
+
+  // DB 초기화 및 카테고리 로드
+  useEffect(() => {
+    async function loadCategories() {
+      await initializeDB();
+      const all = await db.categories.toArray();
+      setCategories(all);
+    }
+    loadCategories();
+  }, []);
+
+  // 금액 자동 포커스
+  useEffect(() => {
+    amountInputRef.current?.focus();
+  }, []);
+
+  // 표시용 금액 (쉼표 포함)
+  const displayAmount = rawAmount ? Number(rawAmount).toLocaleString('ko-KR') : '';
+  const parsedAmount = parseCurrencyInput(rawAmount);
+
+  // 수입/지출에 따라 필터링된 카테고리
+  const filteredCategories =
+    type === 'income'
+      ? categories.filter((c) => INCOME_CATEGORY_NAMES.includes(c.name))
+      : categories.filter((c) => !INCOME_CATEGORY_NAMES.includes(c.name));
+
+  // 타입 변경 시 카테고리 선택 초기화
+  useEffect(() => {
+    setSelectedCategoryId(null);
+    setAiCategoryId(null);
+    setUserModified(false);
+  }, [type]);
+
+  // AI 분류 호출
+  const classifyMemo = useCallback(
+    async (memoText: string) => {
+      if (!memoText.trim() || memoText === lastClassifiedMemo.current) return;
+      if (type === 'income') return; // 수입은 AI 분류 불필요
+
+      lastClassifiedMemo.current = memoText;
+      setAiLoading(true);
+
+      try {
+        const res = await fetch('/api/classify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ memo: memoText, amount: parsedAmount }),
+        });
+
+        if (!res.ok) return;
+
+        const data = (await res.json()) as { categoryName: string; confidence: number; cached: boolean };
+
+        // 분류된 카테고리를 ID로 변환
+        const matched = categories.find((c) => c.name === data.categoryName);
+        if (matched) {
+          setAiCategoryId(matched.id);
+          // 사용자가 아직 수동 선택을 하지 않은 경우에만 자동 선택
+          if (!userModified) {
+            setSelectedCategoryId(matched.id);
+          }
+        }
+      } catch {
+        // AI 분류 실패는 무시
+      } finally {
+        setAiLoading(false);
+      }
+    },
+    [categories, parsedAmount, type, userModified]
+  );
+
+  // 메모 변경 핸들러 (500ms debounce)
+  const handleMemoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setMemo(value);
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      classifyMemo(value);
+    }, 500);
+  };
+
+  // 메모 blur 시에도 분류 실행
+  const handleMemoBlur = () => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    classifyMemo(memo);
+  };
+
+  // 카테고리 선택 핸들러
+  const handleCategorySelect = async (categoryId: number) => {
+    const wasAiSelected = aiCategoryId !== null && selectedCategoryId === aiCategoryId;
+    setSelectedCategoryId(categoryId);
+
+    // AI 추천과 다른 카테고리를 선택하면 수동 수정으로 기록
+    if (aiCategoryId !== null && categoryId !== aiCategoryId) {
+      setUserModified(true);
+      // AI 캐시 업데이트
+      if (memo.trim()) {
+        await updateCacheOnUserCorrection(memo.trim(), categoryId);
+      }
+    } else if (categoryId === aiCategoryId) {
+      // AI 추천 카테고리를 다시 선택하면 수동 수정 해제
+      setUserModified(false);
+    }
+
+    // 타입스크립트 unused var 방지
+    void wasAiSelected;
+  };
+
+  // 금액 입력 핸들러
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const onlyNumbers = e.target.value.replace(/[^0-9]/g, '');
     setRawAmount(onlyNumbers);
   };
 
-  // 표시용 금액 (쉼표 포함)
-  const displayAmount = rawAmount
-    ? Number(rawAmount).toLocaleString('ko-KR')
-    : '';
+  // 저장 유효성
+  const isValid = parsedAmount > 0 && selectedCategoryId !== null;
 
-  const parsedAmount = parseCurrencyInput(rawAmount);
+  // 저장 핸들러
+  const handleSave = async () => {
+    if (!isValid || saving) return;
 
-  // 저장 핸들러 (placeholder)
-  const handleSave = () => {
-    if (!parsedAmount || !selectedCategory) return;
-    // TODO: db.transactions.add({...}) 연동
-    alert(`저장: ${formatCurrency(parsedAmount)} / ${memo}`);
+    setSaving(true);
+    try {
+      const today = new Date();
+      const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+      await db.transactions.add({
+        id: undefined as unknown as number,
+        amount: parsedAmount,
+        memo: memo.trim(),
+        categoryId: selectedCategoryId!,
+        type,
+        date: dateStr,
+        aiClassified: aiCategoryId !== null && !userModified,
+        userModified,
+        createdAt: new Date(),
+      });
+
+      setToast('저장 완료');
+
+      // 토스트 표시 후 홈으로 이동
+      setTimeout(() => {
+        router.push('/');
+      }, 1500);
+    } catch {
+      setToast('저장 실패. 다시 시도해주세요.');
+      setSaving(false);
+    }
   };
-
-  const isValid = parsedAmount > 0 && selectedCategory !== null;
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
+      {/* 토스트 */}
+      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
+
       {/* 상단 헤더 */}
-      <div className="bg-white px-5 pt-6 pb-4 border-b border-gray-100">
-        <h1 className="text-xl font-bold text-gray-900">지출 입력</h1>
+      <div className="bg-white px-5 pt-6 pb-4 border-b border-gray-100 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="text-gray-500 hover:text-gray-700 p-1 -ml-1"
+          aria-label="뒤로가기"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M5 12l7-7M5 12l7 7" />
+          </svg>
+        </button>
+        <h1 className="text-xl font-bold text-gray-900">내역 입력</h1>
       </div>
 
-      <div className="px-4 py-6 space-y-5 max-w-lg mx-auto">
-        {/* 금액 입력 — 큰 숫자, ₩ 기호 */}
+      <div className="px-4 py-6 space-y-4 max-w-lg mx-auto">
+        {/* 수입/지출 세그먼트 컨트롤 */}
+        <div className="bg-gray-100 rounded-2xl p-1 flex">
+          <button
+            type="button"
+            onClick={() => setType('expense')}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              type === 'expense'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500'
+            }`}
+          >
+            지출
+          </button>
+          <button
+            type="button"
+            onClick={() => setType('income')}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              type === 'income'
+                ? 'bg-white text-[#3182F6] shadow-sm'
+                : 'text-gray-500'
+            }`}
+          >
+            수입
+          </button>
+        </div>
+
+        {/* 금액 입력 */}
         <section className="bg-white rounded-2xl p-5 shadow-sm">
           <label className="block text-sm text-gray-500 mb-2">금액</label>
           <div className="flex items-center gap-2">
             <span className="text-3xl font-bold text-gray-400">₩</span>
             <input
+              ref={amountInputRef}
               type="text"
               inputMode="numeric"
               placeholder="0"
@@ -64,9 +279,7 @@ export default function InputPage() {
             />
           </div>
           {parsedAmount > 0 && (
-            <p className="mt-1 text-sm text-gray-400">
-              {formatCurrency(parsedAmount)}
-            </p>
+            <p className="mt-1 text-sm text-gray-400">{formatCurrency(parsedAmount)}</p>
           )}
         </section>
 
@@ -77,37 +290,62 @@ export default function InputPage() {
             type="text"
             placeholder="어디에 사용했나요?"
             value={memo}
-            onChange={(e) => setMemo(e.target.value)}
+            onChange={handleMemoChange}
+            onBlur={handleMemoBlur}
             maxLength={50}
             className="w-full text-base text-gray-900 bg-transparent outline-none placeholder:text-gray-300"
           />
         </section>
 
-        {/* 카테고리 선택 (placeholder) */}
+        {/* 카테고리 선택 */}
         <section className="bg-white rounded-2xl p-5 shadow-sm">
-          <label className="block text-sm text-gray-500 mb-3">카테고리</label>
-          <div className="grid grid-cols-3 gap-2">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 transition-all ${
-                  selectedCategory === cat.id
-                    ? 'border-[#3182F6] bg-[#EBF5FF]'
-                    : 'border-transparent bg-gray-50 hover:bg-gray-100'
-                }`}
-              >
-                <span className="text-2xl">{cat.icon}</span>
-                <span
-                  className={`text-xs font-medium ${
-                    selectedCategory === cat.id ? 'text-[#3182F6]' : 'text-gray-600'
+          <div className="flex items-center justify-between mb-3">
+            <label className="block text-sm text-gray-500">카테고리</label>
+            {aiLoading && (
+              <span className="flex items-center gap-1.5 text-xs text-[#3182F6]">
+                <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
+                AI 분류 중
+              </span>
+            )}
+          </div>
+
+          {/* 4열 그리드, 최대 높이 스크롤 */}
+          <div className="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto">
+            {filteredCategories.map((cat) => {
+              const isSelected = selectedCategoryId === cat.id;
+              const isAiRecommended = aiCategoryId === cat.id;
+
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => handleCategorySelect(cat.id)}
+                  className={`relative flex flex-col items-center gap-1 py-3 rounded-xl border-2 transition-all ${
+                    isSelected
+                      ? 'border-[#3182F6] bg-[#EBF5FF]'
+                      : 'border-transparent bg-gray-50 hover:bg-gray-100'
                   }`}
                 >
-                  {cat.name}
-                </span>
-              </button>
-            ))}
+                  {/* AI 뱃지 */}
+                  {isAiRecommended && (
+                    <span className="absolute top-1 right-1 bg-[#3182F6] text-white text-[9px] font-bold px-1 py-0.5 rounded leading-none">
+                      AI
+                    </span>
+                  )}
+                  <span className="text-xl">{cat.icon}</span>
+                  <span
+                    className={`text-[10px] font-medium text-center leading-tight ${
+                      isSelected ? 'text-[#3182F6]' : 'text-gray-600'
+                    }`}
+                  >
+                    {cat.name}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </section>
 
@@ -115,14 +353,14 @@ export default function InputPage() {
         <button
           type="button"
           onClick={handleSave}
-          disabled={!isValid}
+          disabled={!isValid || saving}
           className={`w-full py-4 rounded-2xl text-base font-semibold transition-all ${
-            isValid
+            isValid && !saving
               ? 'bg-[#3182F6] text-white hover:bg-[#1B64DA] active:scale-[0.98]'
               : 'bg-gray-100 text-gray-300 cursor-not-allowed'
           }`}
         >
-          저장하기
+          {saving ? '저장 중...' : '저장하기'}
         </button>
       </div>
     </div>
