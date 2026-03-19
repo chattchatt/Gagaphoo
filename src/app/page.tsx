@@ -1,12 +1,30 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, type Transaction, type Category, type Budget } from '@/lib/db';
+import { db, type Transaction, type Category, type Budget, type RecurringExpense } from '@/lib/db';
 import { initializeDB } from '@/lib/seed';
 import { formatCurrency } from '@/lib/format';
 import TransactionDetail from '@/components/TransactionDetail';
+import { useRecurringProcessor } from '@/hooks/useRecurringProcessor';
+
+// 토스트 컴포넌트 (하단 중앙 알림)
+function Toast({ message, onClose }: { message: string; onClose: () => void }) {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 2500);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-sm px-4 py-2.5 rounded-full shadow-lg z-50 whitespace-nowrap">
+      {message}
+    </div>
+  );
+}
+
+// 요일 레이블
+const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
 
 // 오늘 날짜 한국어 표시용
 function getTodayLabel(): string {
@@ -35,6 +53,15 @@ export default function HomePage() {
   useEffect(() => {
     initializeDB();
   }, []);
+
+  // 토스트 메시지 상태
+  const [toast, setToast] = useState<string | null>(null);
+
+  // 반복 지출 자동 처리 (하루 1회) — 처리 건수 > 0이면 토스트
+  const handleProcessed = useCallback((count: number) => {
+    setToast(`반복 지출 ${count}건이 자동으로 기록됐습니다.`);
+  }, []);
+  useRecurringProcessor(handleProcessed);
 
   // 선택된 거래 (바텀시트 표시용)
   const [selectedTransaction, setSelectedTransaction] =
@@ -137,8 +164,66 @@ export default function HomePage() {
   // 거래가 0건인 빈 상태 여부
   const isEmpty = todayTransactions.length === 0;
 
+  // 활성화된 반복 지출 전체 조회 (다가오는 반복 지출 섹션용)
+  const recurringItems = useLiveQuery<RecurringExpense[], RecurringExpense[]>(
+    () => db.recurringExpenses.where('isActive').equals(1).toArray(),
+    [],
+    [],
+  );
+
+  // 이번 달 남은 반복 지출 예정 계산 (오늘 이후 날짜 기준, 날짜 순 정렬)
+  const upcomingRecurring = (() => {
+    const today = new Date();
+    const todayDay = today.getDate();
+    const todayWeekday = today.getDay();
+    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+
+    type UpcomingItem = {
+      rec: RecurringExpense;
+      dueDate: string; // YYYY-MM-DD
+      dueDay: number;  // 일(day) 숫자 (정렬용)
+    };
+
+    const result: UpcomingItem[] = [];
+
+    for (const rec of recurringItems) {
+      if (rec.cycle === 'monthly' && rec.dayOfMonth != null) {
+        // 오늘 포함, 이번 달 내 남은 날짜
+        if (rec.dayOfMonth >= todayDay && rec.dayOfMonth <= daysInMonth) {
+          const mm = String(today.getMonth() + 1).padStart(2, '0');
+          const dd = String(rec.dayOfMonth).padStart(2, '0');
+          result.push({
+            rec,
+            dueDate: `${today.getFullYear()}-${mm}-${dd}`,
+            dueDay: rec.dayOfMonth,
+          });
+        }
+      } else if (rec.cycle === 'weekly' && rec.dayOfWeek != null) {
+        // 이번 주 해당 요일이 오늘 이후인지 확인 (이번 달 내)
+        let diff = rec.dayOfWeek - todayWeekday;
+        if (diff < 0) diff += 7;
+        const dueDay = todayDay + diff;
+        if (dueDay <= daysInMonth) {
+          const mm = String(today.getMonth() + 1).padStart(2, '0');
+          const dd = String(dueDay).padStart(2, '0');
+          result.push({
+            rec,
+            dueDate: `${today.getFullYear()}-${mm}-${dd}`,
+            dueDay,
+          });
+        }
+      }
+    }
+
+    // 날짜 순 정렬
+    return result.sort((a, b) => a.dueDay - b.dueDay);
+  })();
+
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
+      {/* 반복 지출 자동 처리 토스트 */}
+      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
+
       {/* 상단 헤더 */}
       <div className="bg-white px-5 pt-6 pb-4 border-b border-gray-100">
         <p className="text-sm text-gray-400">{todayLabel}</p>
@@ -247,6 +332,50 @@ export default function HomePage() {
             </ul>
           )}
         </section>
+        {/* 다가오는 반복 지출 섹션 — 이번 달 남은 예정 항목이 있을 때만 표시 */}
+        {upcomingRecurring.length > 0 && (
+          <section className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between px-5 pt-4 pb-2">
+              <h2 className="text-sm font-semibold text-gray-700">다가오는 반복 지출</h2>
+              <Link
+                href="/settings/recurring"
+                className="text-xs text-[#3182F6] hover:underline"
+              >
+                관리
+              </Link>
+            </div>
+            <ul className="divide-y divide-gray-50">
+              {upcomingRecurring.map(({ rec, dueDate, dueDay }) => {
+                const cat: Category | undefined = categoryMap.get(rec.categoryId);
+                const isToday = dueDate === todayStr;
+                // 요일 표시 (weekly인 경우)
+                const dateLabel = rec.cycle === 'weekly' && rec.dayOfWeek != null
+                  ? `${dueDay}일 (${DAY_LABELS[rec.dayOfWeek]})`
+                  : `${dueDay}일`;
+                return (
+                  <li key={rec.id} className="flex items-center gap-3 px-5 py-3">
+                    {/* 카테고리 아이콘 */}
+                    <span className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xl flex-shrink-0">
+                      {cat?.icon ?? '📌'}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">{rec.memo}</p>
+                      <p className="text-xs text-gray-400">
+                        {cat?.name ?? '기타'} ·{' '}
+                        <span className={isToday ? 'text-[#3182F6] font-semibold' : ''}>
+                          {isToday ? '오늘' : dateLabel}
+                        </span>
+                      </p>
+                    </div>
+                    <span className="text-sm font-semibold text-gray-800 flex-shrink-0">
+                      {formatCurrency(rec.amount)}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
       </div>
 
       {/* 빠른 입력 FAB 버튼 (토스 블루) */}

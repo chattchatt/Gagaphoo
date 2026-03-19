@@ -16,6 +16,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className="h-full">
+      {/* 다크모드 플래시 방지: 페이지 렌더 전에 localStorage 값 읽어 html에 dark 클래스 적용 */}
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('gagaphoo-theme');var d=t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.classList.add('dark');}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className="h-full bg-[var(--background)] text-[var(--foreground)]">
         {/* 앱 진입 시 브라우저 알림 권한 요청 */}
         <NotificationPermissionInit />

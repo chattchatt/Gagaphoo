@@ -11,6 +11,7 @@ export interface Transaction {
   date: string; // YYYY-MM-DD
   aiClassified: boolean;   // AI가 자동 분류했는지 여부
   userModified: boolean;   // 사용자가 직접 수정했는지 여부
+  recurringId?: number;    // 반복 지출 ID (자동 생성된 경우)
   createdAt: Date;
 }
 
@@ -76,6 +77,15 @@ class GagaphooDatabase extends Dexie {
     // 버전 2: AI 분류 캐시 테이블 추가
     this.version(2).stores({
       transactions: '++id, date, categoryId, type',
+      categories: '++id, name',
+      budgets: '++id, categoryId, month',
+      recurringExpenses: '++id, categoryId, isActive',
+      classificationCache: '++id, memoPattern',
+    });
+
+    // 버전 3: transactions에 recurringId 인덱스 추가 (반복 지출 중복 방지)
+    this.version(3).stores({
+      transactions: '++id, date, categoryId, type, recurringId',
       categories: '++id, name',
       budgets: '++id, categoryId, month',
       recurringExpenses: '++id, categoryId, isActive',
