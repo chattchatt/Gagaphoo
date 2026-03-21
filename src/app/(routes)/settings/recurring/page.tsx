@@ -314,7 +314,7 @@ export default function RecurringSettingsPage() {
 
   // 전체 반복 지출 목록 (실시간)
   const items = useLiveQuery<RecurringExpense[]>(
-    () => db.recurringExpenses.orderBy('createdAt').reverse().toArray(),
+    () => db.recurringExpenses.toArray().then(arr => arr.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())),
     []
   );
 

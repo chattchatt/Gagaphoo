@@ -17,6 +17,12 @@ const settingsMenus = [
         description: '구독·월세 등 정기 지출 관리',
         icon: '🔄',
       },
+      {
+        href: '',
+        label: '카테고리',
+        description: '준비 중',
+        icon: '🏷️',
+      },
     ],
   },
   {
@@ -63,38 +69,34 @@ export default function SettingsPage() {
 
             {/* 메뉴 카드 */}
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden divide-y divide-gray-50">
-              {group.items.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors"
-                >
-                  {/* 아이콘 */}
-                  <span className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xl flex-shrink-0">
-                    {item.icon}
-                  </span>
+              {group.items.map((item) => {
+                const content = (
+                  <>
+                    <span className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xl flex-shrink-0">
+                      {item.icon}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">{item.label}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{item.description}</p>
+                    </div>
+                    {item.href && (
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-gray-300 flex-shrink-0">
+                        <path fillRule="evenodd" d="M16.28 11.47a.75.75 0 010 1.06l-7.5 7.5a.75.75 0 01-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 011.06-1.06l7.5 7.5z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </>
+                );
 
-                  {/* 텍스트 */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900">{item.label}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{item.description}</p>
+                return item.href ? (
+                  <Link key={item.href} href={item.href} className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors">
+                    {content}
+                  </Link>
+                ) : (
+                  <div key={item.label} className="flex items-center gap-4 px-5 py-4 opacity-40 cursor-default">
+                    {content}
                   </div>
-
-                  {/* 화살표 */}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="w-4 h-4 text-gray-300 flex-shrink-0"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.28 11.47a.75.75 0 010 1.06l-7.5 7.5a.75.75 0 01-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 011.06-1.06l7.5 7.5z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </Link>
-              ))}
+                );
+              })}
             </div>
           </section>
         ))}
