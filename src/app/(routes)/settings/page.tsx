@@ -17,12 +17,6 @@ const settingsMenus = [
         description: '구독·월세 등 정기 지출 관리',
         icon: '🔄',
       },
-      {
-        href: '/settings/categories',
-        label: '카테고리',
-        description: '지출 카테고리 추가·편집',
-        icon: '🏷️',
-      },
     ],
   },
   {
