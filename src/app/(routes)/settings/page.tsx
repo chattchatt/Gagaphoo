@@ -18,9 +18,9 @@ const settingsMenus = [
         icon: '🔄',
       },
       {
-        href: '',
+        href: '/settings/categories',
         label: '카테고리',
-        description: '준비 중',
+        description: '지출 카테고리 추가·편집',
         icon: '🏷️',
       },
     ],
