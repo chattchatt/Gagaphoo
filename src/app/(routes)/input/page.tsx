@@ -55,6 +55,13 @@ export default function InputPage() {
   // 저장 중 상태
   const [saving, setSaving] = useState(false);
 
+  // 날짜 선택 (기본값: 오늘)
+  const todayStr = (() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  })();
+  const [selectedDate, setSelectedDate] = useState(todayStr);
+
   // 토스트 메시지
   const [toast, setToast] = useState<string | null>(null);
 
@@ -190,9 +197,10 @@ export default function InputPage() {
     void wasAiSelected;
   };
 
-  // 금액 입력 핸들러
+  // 금액 입력 핸들러 (최대 12자리 제한)
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const onlyNumbers = e.target.value.replace(/[^0-9]/g, '');
+    if (onlyNumbers.length > 12) return;
     setRawAmount(onlyNumbers);
   };
 
@@ -205,16 +213,13 @@ export default function InputPage() {
 
     setSaving(true);
     try {
-      const today = new Date();
-      const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
       await db.transactions.add({
         id: undefined as unknown as number,
         amount: parsedAmount,
         memo: memo.trim(),
         categoryId: selectedCategoryId!,
         type,
-        date: dateStr,
+        date: selectedDate,
         aiClassified: aiCategoryId !== null && !userModified,
         userModified,
         createdAt: new Date(),
@@ -227,6 +232,7 @@ export default function InputPage() {
 
       // 토스트 표시 후 홈으로 이동
       setTimeout(() => {
+        setSaving(false);
         router.push('/');
       }, 1500);
     } catch {
@@ -313,6 +319,18 @@ export default function InputPage() {
             onBlur={handleMemoBlur}
             maxLength={50}
             className="w-full text-base text-gray-900 bg-transparent outline-none placeholder:text-gray-300"
+          />
+        </section>
+
+        {/* 날짜 선택 */}
+        <section className="bg-white rounded-2xl p-5 shadow-sm">
+          <label className="block text-sm text-gray-500 mb-2">날짜</label>
+          <input
+            type="date"
+            value={selectedDate}
+            max={todayStr}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="w-full text-base text-gray-900 bg-transparent outline-none"
           />
         </section>
 

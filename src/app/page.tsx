@@ -37,17 +37,35 @@ function getTodayLabel(): string {
   });
 }
 
-export default function HomePage() {
-  const todayLabel = getTodayLabel();
-  const currentMonth = new Date().toLocaleDateString('ko-KR', {
+// YYYY-MM 문자열로부터 한국어 월 라벨 생성
+function getMonthLabel(monthPrefix: string): string {
+  const [year, month] = monthPrefix.split('-');
+  return new Date(Number(year), Number(month) - 1, 1).toLocaleDateString('ko-KR', {
     year: 'numeric',
     month: 'long',
   });
+}
+
+// YYYY-MM 문자열을 N개월 앞/뒤로 이동
+function shiftMonth(monthPrefix: string, delta: number): string {
+  const [year, month] = monthPrefix.split('-').map(Number);
+  const d = new Date(year, month - 1 + delta, 1);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  return `${y}-${m}`;
+}
+
+export default function HomePage() {
+  const todayLabel = getTodayLabel();
 
   // 오늘 날짜 (YYYY-MM-DD)
   const todayStr = new Date().toISOString().slice(0, 10);
   // 이번 달 접두사 (YYYY-MM)
   const thisMonthPrefix = new Date().toISOString().slice(0, 7);
+
+  // 조회 중인 달 (기본값: 이번 달)
+  const [viewMonth, setViewMonth] = useState<string>(thisMonthPrefix);
+  const isCurrentMonth = viewMonth === thisMonthPrefix;
 
   // DB 초기화 — 최초 실행 시 기본 카테고리 삽입
   useEffect(() => {
@@ -79,7 +97,7 @@ export default function HomePage() {
     categories.map((c) => [c.id, c]),
   );
 
-  // 오늘 지출 내역 실시간 조회
+  // 오늘 지출 내역 실시간 조회 (이번 달 보기일 때만 사용)
   const todayTransactions = useLiveQuery<Transaction[], Transaction[]>(
     () =>
       db.transactions
@@ -92,28 +110,28 @@ export default function HomePage() {
     [],
   );
 
-  // 이번 달 지출 내역 실시간 조회 (총액 집계용)
+  // 조회 달 지출 내역 실시간 조회 (총액 집계용)
   const monthlyTransactions = useLiveQuery<Transaction[], Transaction[]>(
     () =>
       db.transactions
         .where('date')
-        .startsWith(thisMonthPrefix)
+        .startsWith(viewMonth)
         .filter((t) => t.type === 'expense')
         .toArray(),
-    [thisMonthPrefix],
+    [viewMonth],
     [],
   );
 
-  // 이번 달 총 지출 계산
+  // 조회 달 총 지출 계산
   const monthlyTotal = monthlyTransactions.reduce(
     (sum: number, t: Transaction) => sum + t.amount,
     0,
   );
 
-  // 이번 달 예산 설정 여부 및 총 예산 실시간 조회
+  // 조회 달 예산 설정 여부 및 총 예산 실시간 조회
   const monthlyBudgets = useLiveQuery<Budget[], Budget[]>(
-    () => db.budgets.where('month').equals(thisMonthPrefix).toArray(),
-    [thisMonthPrefix],
+    () => db.budgets.where('month').equals(viewMonth).toArray(),
+    [viewMonth],
     [],
   );
 
@@ -123,9 +141,10 @@ export default function HomePage() {
     0,
   );
 
-  // 예산 사용률 (0~100 이상)
-  const budgetPercent =
-    totalBudget > 0 ? Math.min(Math.round((monthlyTotal / totalBudget) * 100), 100) : 0;
+  // 예산 사용률 (clamped: 진행바용, raw: 배너용)
+  const budgetRawPercent =
+    totalBudget > 0 ? Math.round((monthlyTotal / totalBudget) * 100) : 0;
+  const budgetPercent = Math.min(budgetRawPercent, 100);
 
   // 진행바 색상: 80% 이상 주황, 100% 이상 빨강, 그 외 토스 블루
   const progressColor =
@@ -135,13 +154,17 @@ export default function HomePage() {
         ? 'bg-orange-400'
         : 'bg-[#3182F6]';
 
+  // 예산 경고 배너 표시 여부 (80% 이상이고 예산이 설정된 경우)
+  const showBudgetWarning = totalBudget > 0 && budgetRawPercent >= 80;
+  const budgetExceeded = totalBudget > 0 && monthlyTotal >= totalBudget;
+
   // 오늘 총 지출
   const todayTotal = todayTransactions.reduce(
     (sum: number, t: Transaction) => sum + t.amount,
     0,
   );
 
-  // 이번 달 카테고리별 지출 집계
+  // 조회 달 카테고리별 지출 집계
   const categoryTotals = monthlyTransactions.reduce<Map<number, number>>(
     (acc: Map<number, number>, t: Transaction) => {
       acc.set(t.categoryId, (acc.get(t.categoryId) ?? 0) + t.amount);
@@ -171,8 +194,25 @@ export default function HomePage() {
     [],
   );
 
+  // 이번 달에 이미 처리된 반복 지출 ID 집합 (중복 표시 방지)
+  const processedRecurringIds = useLiveQuery<Set<number>, Set<number>>(
+    () =>
+      db.transactions
+        .where('date')
+        .startsWith(thisMonthPrefix)
+        .filter((t) => t.recurringId != null)
+        .toArray()
+        .then((txs) => new Set(txs.map((t) => t.recurringId as number))),
+    [thisMonthPrefix],
+    new Set<number>(),
+  );
+
   // 이번 달 남은 반복 지출 예정 계산 (오늘 이후 날짜 기준, 날짜 순 정렬)
+  // 이미 처리된 항목은 목록에서 제외
   const upcomingRecurring = (() => {
+    // 이번 달 보기가 아니면 표시 안 함
+    if (!isCurrentMonth) return [];
+
     const today = new Date();
     const todayDay = today.getDate();
     const todayWeekday = today.getDay();
@@ -187,6 +227,9 @@ export default function HomePage() {
     const result: UpcomingItem[] = [];
 
     for (const rec of recurringItems) {
+      // 이미 이번 달에 처리된 항목 제외
+      if (processedRecurringIds.has(rec.id)) continue;
+
       if (rec.cycle === 'monthly' && rec.dayOfMonth != null) {
         // 오늘 포함, 이번 달 내 남은 날짜
         if (rec.dayOfMonth >= todayDay && rec.dayOfMonth <= daysInMonth) {
@@ -224,6 +267,21 @@ export default function HomePage() {
       {/* 반복 지출 자동 처리 토스트 */}
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
 
+      {/* 예산 초과/경고 배너 (80% 이상 사용 시) */}
+      {showBudgetWarning && (
+        <div
+          className={`px-4 py-3 text-sm font-medium text-center ${
+            budgetExceeded
+              ? 'bg-red-50 text-red-700'
+              : 'bg-orange-50 text-orange-700'
+          }`}
+        >
+          {budgetExceeded
+            ? `이번 달 예산을 초과했습니다. (${budgetRawPercent}% 사용)`
+            : `이번 달 예산의 ${budgetRawPercent}%를 사용했습니다. 지출에 주의하세요.`}
+        </div>
+      )}
+
       {/* 상단 헤더 */}
       <div className="bg-white px-5 pt-6 pb-4 border-b border-gray-100">
         <p className="text-sm text-gray-400">{todayLabel}</p>
@@ -231,9 +289,33 @@ export default function HomePage() {
       </div>
 
       <div className="px-4 py-4 space-y-4 max-w-2xl mx-auto">
-        {/* 이번 달 총 지출 요약 카드 */}
+        {/* 월별 필터 네비게이션 */}
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => setViewMonth((m) => shiftMonth(m, -1))}
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm text-gray-500 hover:bg-gray-50 active:scale-95 transition-all"
+            aria-label="이전 달"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+              <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
+            </svg>
+          </button>
+          <span className="text-sm font-semibold text-gray-700">{getMonthLabel(viewMonth)}</span>
+          <button
+            onClick={() => setViewMonth((m) => shiftMonth(m, 1))}
+            disabled={isCurrentMonth}
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm text-gray-500 hover:bg-gray-50 active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label="다음 달"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+              <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+            </svg>
+          </button>
+        </div>
+
+        {/* 월별 총 지출 요약 카드 */}
         <section className="bg-white rounded-2xl p-5 shadow-sm">
-          <p className="text-sm text-gray-500 mb-1">{currentMonth} 총 지출</p>
+          <p className="text-sm text-gray-500 mb-1">{getMonthLabel(viewMonth)} 총 지출</p>
           <p className="text-3xl font-bold text-gray-900">
             {formatCurrency(monthlyTotal)}
           </p>
@@ -257,14 +339,16 @@ export default function HomePage() {
               </div>
             </div>
           ) : (
-            <div className="mt-4">
-              <Link
-                href="/settings/budget"
-                className="text-xs text-[#3182F6] hover:underline"
-              >
-                예산을 설정하세요 →
-              </Link>
-            </div>
+            isCurrentMonth && (
+              <div className="mt-4">
+                <Link
+                  href="/settings/budget"
+                  className="text-xs text-[#3182F6] hover:underline"
+                >
+                  예산을 설정하세요 →
+                </Link>
+              </div>
+            )
           )}
 
           {/* 카테고리별 상위 지출 — 지출이 있을 때만 표시 */}
@@ -286,52 +370,55 @@ export default function HomePage() {
           )}
         </section>
 
-        {/* 오늘 지출 목록 */}
-        <section className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-5 pt-4 pb-2">
-            <h2 className="text-sm font-semibold text-gray-700">오늘 지출</h2>
-            <span className="text-sm font-bold text-[#3182F6]">
-              {formatCurrency(todayTotal)}
-            </span>
-          </div>
-
-          {isEmpty ? (
-            /* 빈 상태 안내 */
-            <div className="px-5 pb-6 pt-2 text-center">
-              <p className="text-sm text-gray-400 mb-1">아직 지출 내역이 없습니다</p>
-              <p className="text-xs text-gray-300">
-                아래 + 버튼을 눌러 첫 지출을 기록해 보세요
-              </p>
+        {/* 오늘 지출 목록 — 이번 달 보기일 때만 표시 */}
+        {isCurrentMonth && (
+          <section className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between px-5 pt-4 pb-2">
+              <h2 className="text-sm font-semibold text-gray-700">오늘 지출</h2>
+              <span className="text-sm font-bold text-[#3182F6]">
+                {formatCurrency(todayTotal)}
+              </span>
             </div>
-          ) : (
-            <ul className="divide-y divide-gray-50">
-              {todayTransactions.map((tx: Transaction) => {
-                const cat: Category | undefined = categoryMap.get(tx.categoryId);
-                return (
-                  <li
-                    key={tx.id}
-                    className="flex items-center gap-3 px-5 py-3 active:bg-gray-50 cursor-pointer"
-                    onClick={() => setSelectedTransaction(tx)}
-                  >
-                    {/* 카테고리 아이콘 */}
-                    <span className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xl flex-shrink-0">
-                      {cat?.icon ?? '📌'}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {tx.memo || cat?.name || '지출'}
-                      </p>
-                      <p className="text-xs text-gray-400">{cat?.name ?? '기타'}</p>
-                    </div>
-                    <span className="text-sm font-semibold text-gray-800">
-                      {formatCurrency(tx.amount)}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </section>
+
+            {isEmpty ? (
+              /* 빈 상태 안내 */
+              <div className="px-5 pb-6 pt-2 text-center">
+                <p className="text-sm text-gray-400 mb-1">아직 지출 내역이 없습니다</p>
+                <p className="text-xs text-gray-300">
+                  아래 + 버튼을 눌러 첫 지출을 기록해 보세요
+                </p>
+              </div>
+            ) : (
+              <ul className="divide-y divide-gray-50">
+                {todayTransactions.map((tx: Transaction) => {
+                  const cat: Category | undefined = categoryMap.get(tx.categoryId);
+                  return (
+                    <li
+                      key={tx.id}
+                      className="flex items-center gap-3 px-5 py-3 active:bg-gray-50 cursor-pointer"
+                      onClick={() => setSelectedTransaction(tx)}
+                    >
+                      {/* 카테고리 아이콘 */}
+                      <span className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xl flex-shrink-0">
+                        {cat?.icon ?? '📌'}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {tx.memo || cat?.name || '지출'}
+                        </p>
+                        <p className="text-xs text-gray-400">{cat?.name ?? '기타'}</p>
+                      </div>
+                      <span className="text-sm font-semibold text-gray-800">
+                        {formatCurrency(tx.amount)}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+        )}
+
         {/* 다가오는 반복 지출 섹션 — 이번 달 남은 예정 항목이 있을 때만 표시 */}
         {upcomingRecurring.length > 0 && (
           <section className="bg-white rounded-2xl shadow-sm overflow-hidden">
@@ -404,6 +491,13 @@ export default function HomePage() {
         categories={categories}
         isOpen={selectedTransaction !== null}
         onClose={() => setSelectedTransaction(null)}
+        onDeleted={() => {
+          setSelectedTransaction(null);
+          setToast('내역이 삭제됐습니다.');
+        }}
+        onUpdated={() => {
+          setToast('내역이 수정됐습니다.');
+        }}
       />
     </div>
   );

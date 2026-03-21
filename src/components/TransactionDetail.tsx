@@ -9,6 +9,8 @@ interface TransactionDetailProps {
   categories: Category[];
   isOpen: boolean;
   onClose: () => void;
+  onDeleted?: () => void;
+  onUpdated?: () => void;
 }
 
 export default function TransactionDetail({
@@ -16,6 +18,8 @@ export default function TransactionDetail({
   categories,
   isOpen,
   onClose,
+  onDeleted,
+  onUpdated,
 }: TransactionDetailProps) {
   // 편집 상태값
   const [editAmount, setEditAmount] = useState('');
@@ -61,6 +65,7 @@ export default function TransactionDetail({
         userModified: true,
       });
       setIsEditing(false);
+      onUpdated?.();
     } finally {
       setIsSaving(false);
     }
@@ -71,6 +76,7 @@ export default function TransactionDetail({
     if (!transaction) return;
     await db.transactions.delete(transaction.id);
     setShowDeleteConfirm(false);
+    onDeleted?.();
     onClose();
   }
 

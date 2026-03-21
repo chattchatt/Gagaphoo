@@ -46,11 +46,22 @@ const chartTabs: { id: ChartTab; label: string }[] = [
   { id: 'line', label: '라인' },
 ];
 
+// 카테고리별 거래 포함 데이터 타입
+interface CategoryWithTransactions {
+  name: string;
+  amount: number;
+  color: string;
+  icon: string;
+  count: number;
+  transactions: { date: string; memo: string; amount: number }[];
+}
+
 export default function ReportPage() {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [activeTab, setActiveTab] = useState<ChartTab>('pie');
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
   const currentMonthKey = toMonthKey(year, month);
 
@@ -91,25 +102,35 @@ export default function ReportPage() {
     const categories = await db.categories.toArray();
     const categoryMap = new Map(categories.map((c) => [c.id, c]));
 
-    // 카테고리별 집계
-    const categoryTotals = new Map<number, number>();
+    // 카테고리별 집계 (거래 목록 포함)
+    const categoryGroups = new Map<number, CategoryWithTransactions>();
     for (const txn of txns) {
-      categoryTotals.set(txn.categoryId, (categoryTotals.get(txn.categoryId) ?? 0) + txn.amount);
-    }
-
-    // 차트용 데이터: 카테고리 정보 포함, 0원 제외, 금액 내림차순
-    const categoryData = Array.from(categoryTotals.entries())
-      .map(([catId, amount]) => {
-        const cat = categoryMap.get(catId);
-        return {
+      const existing = categoryGroups.get(txn.categoryId);
+      const cat = categoryMap.get(txn.categoryId);
+      if (existing) {
+        existing.amount += txn.amount;
+        existing.count += 1;
+        existing.transactions.push({ date: txn.date, memo: txn.memo, amount: txn.amount });
+      } else {
+        categoryGroups.set(txn.categoryId, {
           name: cat?.name ?? '알 수 없음',
-          amount,
+          amount: txn.amount,
           color: cat?.color ?? '#94A3B8',
           icon: cat?.icon ?? '📌',
-        };
-      })
+          count: 1,
+          transactions: [{ date: txn.date, memo: txn.memo, amount: txn.amount }],
+        });
+      }
+    }
+
+    // 차트용 데이터: 0원 제외, 금액 내림차순, 거래는 날짜 내림차순
+    const categoryData = Array.from(categoryGroups.values())
       .filter((d) => d.amount > 0)
-      .sort((a, b) => b.amount - a.amount);
+      .sort((a, b) => b.amount - a.amount)
+      .map((d) => ({
+        ...d,
+        transactions: d.transactions.sort((a, b) => b.date.localeCompare(a.date)),
+      }));
 
     const totalExpense = categoryData.reduce((sum, d) => sum + d.amount, 0);
 
@@ -165,6 +186,15 @@ export default function ReportPage() {
   const prevTotal = prevMonthData ?? 0;
   const diff = totalExpense - prevTotal;
   const hasDiff = prevTotal > 0 || totalExpense > 0;
+
+  // 차트용 데이터 (icon/count/transactions 제외한 단순 형태)
+  const chartCategoryData = categoryData.map(({ name, amount, color, icon }) => ({
+    name, amount, color, icon,
+  }));
+
+  const toggleCategory = (name: string) => {
+    setExpandedCategory((prev) => (prev === name ? null : name));
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
@@ -243,7 +273,7 @@ export default function ReportPage() {
           {/* 실제 차트 컴포넌트 */}
           <div className="p-4">
             {activeTab === 'pie' && (
-              <CategoryPieChart data={categoryData} />
+              <CategoryPieChart data={chartCategoryData} />
             )}
             {activeTab === 'bar' && (
               <MonthlyBarChart data={trendData} currentMonth={currentMonthKey} />
@@ -254,7 +284,7 @@ export default function ReportPage() {
           </div>
         </section>
 
-        {/* 카테고리별 지출 목록 */}
+        {/* 카테고리별 지출 목록 (아코디언) */}
         <section className="bg-white rounded-2xl shadow-sm overflow-hidden">
           <h2 className="px-5 pt-4 pb-2 text-sm font-semibold text-gray-700">
             카테고리별 지출
@@ -271,23 +301,60 @@ export default function ReportPage() {
                 const percent = totalExpense > 0
                   ? Math.round((cat.amount / totalExpense) * 100)
                   : 0;
+                const isExpanded = expandedCategory === cat.name;
+
                 return (
-                  <li key={cat.name} className="px-5 py-3">
-                    <div className="flex items-center gap-3 mb-1.5">
-                      <span className="text-xl">{cat.icon}</span>
-                      <span className="flex-1 text-sm font-medium text-gray-900">{cat.name}</span>
-                      <span className="text-sm font-semibold text-gray-800">
-                        {formatCurrency(cat.amount)}
-                      </span>
-                      <span className="text-xs text-gray-400 w-8 text-right">{percent}%</span>
-                    </div>
-                    {/* 카테고리별 진행바 */}
-                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden ml-8">
-                      <div
-                        className="h-full rounded-full"
-                        style={{ width: `${percent}%`, backgroundColor: cat.color }}
-                      />
-                    </div>
+                  <li key={cat.name}>
+                    {/* 카테고리 카드 — 클릭 시 아코디언 토글 */}
+                    <button
+                      type="button"
+                      onClick={() => toggleCategory(cat.name)}
+                      className="w-full px-5 py-3 text-left hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex items-center gap-3 mb-1.5">
+                        <span className="text-xl">{cat.icon}</span>
+                        <span className="flex-1 text-sm font-medium text-gray-900">{cat.name}</span>
+                        <span className="text-xs text-gray-400">{cat.count}건</span>
+                        <span className="text-sm font-semibold text-gray-800">
+                          {formatCurrency(cat.amount)}
+                        </span>
+                        <span className="text-xs text-gray-400 w-8 text-right">{percent}%</span>
+                        {/* 아코디언 화살표 */}
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          className={`w-4 h-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                        >
+                          <path fillRule="evenodd" d="M12.53 16.28a.75.75 0 01-1.06 0l-7.5-7.5a.75.75 0 011.06-1.06L12 14.69l6.97-6.97a.75.75 0 111.06 1.06l-7.5 7.5z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      {/* 카테고리별 진행바 */}
+                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden ml-8">
+                        <div
+                          className="h-full rounded-full"
+                          style={{ width: `${percent}%`, backgroundColor: cat.color }}
+                        />
+                      </div>
+                    </button>
+
+                    {/* 아코디언 — 거래 목록 */}
+                    {isExpanded && (
+                      <ul className="bg-gray-50 border-t border-gray-100">
+                        {cat.transactions.map((txn, idx) => (
+                          <li
+                            key={idx}
+                            className="flex items-center px-5 py-2.5 gap-3 border-b border-gray-100 last:border-b-0"
+                          >
+                            <span className="text-xs text-gray-400 w-16 shrink-0">{txn.date.slice(5)}</span>
+                            <span className="flex-1 text-sm text-gray-700 truncate">{txn.memo || '메모 없음'}</span>
+                            <span className="text-sm font-medium text-gray-900 shrink-0">
+                              {formatCurrency(txn.amount)}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </li>
                 );
               })}
