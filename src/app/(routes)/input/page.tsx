@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { parseCurrencyInput, formatCurrency } from '@/lib/format';
 import { initializeDB } from '@/lib/seed';
 import { db, type Category } from '@/lib/db';
-import { updateCacheOnUserCorrection } from '@/lib/ai-cache';
+import { getCachedClassification, cacheClassification, updateCacheOnUserCorrection } from '@/lib/ai-cache';
 import { useBudgetAlert } from '@/hooks/useBudgetAlert';
 
 // 수입 전용 카테고리 이름 목록
@@ -102,7 +102,7 @@ export default function InputPage() {
     setUserModified(false);
   }, [type]);
 
-  // AI 분류 호출
+  // AI 분류 호출 (클라이언트 캐시 우선 → 미스 시 API 호출)
   const classifyMemo = useCallback(
     async (memoText: string) => {
       if (!memoText.trim() || memoText === lastClassifiedMemo.current) return;
@@ -112,6 +112,17 @@ export default function InputPage() {
       setAiLoading(true);
 
       try {
+        // 1. 클라이언트 캐시(IndexedDB) 먼저 확인
+        const cachedCategoryId = await getCachedClassification(memoText.trim());
+        if (cachedCategoryId !== null) {
+          setAiCategoryId(cachedCategoryId);
+          if (!userModified) {
+            setSelectedCategoryId(cachedCategoryId);
+          }
+          return;
+        }
+
+        // 2. 캐시 미스 → API 호출
         const res = await fetch('/api/classify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -126,10 +137,11 @@ export default function InputPage() {
         const matched = categories.find((c) => c.name === data.categoryName);
         if (matched) {
           setAiCategoryId(matched.id);
-          // 사용자가 아직 수동 선택을 하지 않은 경우에만 자동 선택
           if (!userModified) {
             setSelectedCategoryId(matched.id);
           }
+          // 3. 결과를 클라이언트 캐시에 저장
+          await cacheClassification(memoText.trim(), matched.id);
         }
       } catch {
         // AI 분류 실패는 무시

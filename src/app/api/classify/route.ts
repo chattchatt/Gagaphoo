@@ -1,9 +1,7 @@
-// POST /api/classify — 거래 메모를 AI로 분류
-// 캐시 우선 조회 → 없으면 Gemini API 호출
+// POST /api/classify — 거래 메모를 AI(Gemini)로 분류
+// 캐시는 클라이언트(IndexedDB)에서 처리, 서버는 AI 호출만 담당
 import { NextRequest } from 'next/server';
 import { classifyTransaction } from '@/lib/ai';
-import { getCachedClassification, cacheClassification } from '@/lib/ai-cache';
-import { db } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
   if (!process.env.GEMINI_API_KEY) {
@@ -15,7 +13,8 @@ export async function POST(request: NextRequest) {
 
   let body: { memo?: unknown; amount?: unknown };
   try {
-    body = await request.json() as { memo?: unknown; amount?: unknown };
+    const text = await request.text();
+    body = JSON.parse(text) as { memo?: unknown; amount?: unknown };
   } catch {
     return Response.json({ error: '잘못된 요청 형식입니다.' }, { status: 400 });
   }
@@ -27,25 +26,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: 'memo 필드가 필요합니다.' }, { status: 400 });
   }
 
-  // 1. 캐시 먼저 확인
-  const cachedCategoryId = await getCachedClassification(memo);
-  if (cachedCategoryId !== null) {
-    const category = await db.categories.get(cachedCategoryId);
-    return Response.json({
-      categoryName: category?.name ?? '기타',
-      confidence: 1.0,
-      cached: true,
-    });
-  }
-
-  // 2. AI 호출
   const result = await classifyTransaction(memo, amount);
-
-  // 3. 결과를 캐시에 저장 (카테고리 이름 → ID 변환)
-  const category = await db.categories.where('name').equals(result.categoryName).first();
-  if (category) {
-    await cacheClassification(memo, category.id);
-  }
 
   return Response.json({
     categoryName: result.categoryName,
