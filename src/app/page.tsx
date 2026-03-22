@@ -419,6 +419,79 @@ export default function HomePage() {
           </section>
         )}
 
+        {/* 날짜별 지출 내역 — 해당 월의 전체 거래를 날짜별 그룹핑 */}
+        {(() => {
+          // 이번 달이면 오늘 제외 (오늘 지출은 위에서 별도 표시), 이전 달이면 전체
+          const filteredTxs = isCurrentMonth
+            ? monthlyTransactions.filter((t) => t.date !== todayStr)
+            : monthlyTransactions;
+
+          // 날짜별 그룹핑 (내림차순)
+          const grouped = new Map<string, Transaction[]>();
+          for (const tx of filteredTxs) {
+            const list = grouped.get(tx.date) ?? [];
+            list.push(tx);
+            grouped.set(tx.date, list);
+          }
+          const sortedDates = Array.from(grouped.keys()).sort((a, b) => b.localeCompare(a));
+
+          if (sortedDates.length === 0 && !isCurrentMonth) {
+            return (
+              <section className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <div className="px-5 py-6 text-center">
+                  <p className="text-sm text-gray-400">이 달의 지출 내역이 없습니다</p>
+                </div>
+              </section>
+            );
+          }
+
+          return sortedDates.map((date) => {
+            const txs = grouped.get(date) ?? [];
+            // 최신순 정렬
+            txs.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+            const dayTotal = txs.reduce((s, t) => s + t.amount, 0);
+            // 날짜 라벨: "3월 21일 (금)"
+            const d = new Date(date + 'T00:00:00');
+            const dateLabel = d.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
+
+            return (
+              <section key={date} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <div className="flex items-center justify-between px-5 pt-4 pb-2">
+                  <h2 className="text-sm font-semibold text-gray-700">{dateLabel}</h2>
+                  <span className="text-sm font-bold text-gray-500">
+                    {formatCurrency(dayTotal)}
+                  </span>
+                </div>
+                <ul className="divide-y divide-gray-50">
+                  {txs.map((tx: Transaction) => {
+                    const cat: Category | undefined = categoryMap.get(tx.categoryId);
+                    return (
+                      <li
+                        key={tx.id}
+                        className="flex items-center gap-3 px-5 py-3 active:bg-gray-50 cursor-pointer"
+                        onClick={() => setSelectedTransaction(tx)}
+                      >
+                        <span className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xl flex-shrink-0">
+                          {cat?.icon ?? '📌'}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {tx.memo || cat?.name || '지출'}
+                          </p>
+                          <p className="text-xs text-gray-400">{cat?.name ?? '기타'}</p>
+                        </div>
+                        <span className="text-sm font-semibold text-gray-800">
+                          {formatCurrency(tx.amount)}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            );
+          });
+        })()}
+
         {/* 다가오는 반복 지출 섹션 — 이번 달 남은 예정 항목이 있을 때만 표시 */}
         {upcomingRecurring.length > 0 && (
           <section className="bg-white rounded-2xl shadow-sm overflow-hidden">
