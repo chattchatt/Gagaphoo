@@ -63,6 +63,24 @@ export interface ClassificationCache {
   lastUsed: Date;
 }
 
+// 소비 DNA 분석 결과 (월별)
+export interface SpendingDNA {
+  id: number;
+  month: string; // YYYY-MM
+  scores: string; // JSON: { saving, planning, diversity, impulse, investment }
+  primaryType: string;
+  secondaryType: string;
+  createdAt: Date;
+}
+
+// AI 코칭 응답 캐시 (월별)
+export interface CoachingCache {
+  id: number;
+  month: string; // YYYY-MM
+  content: string; // JSON string
+  createdAt: Date;
+}
+
 // Dexie 데이터베이스 클래스 정의
 class GagaphooDatabase extends Dexie {
   transactions!: EntityTable<Transaction, 'id'>;
@@ -71,6 +89,8 @@ class GagaphooDatabase extends Dexie {
   recurringExpenses!: EntityTable<RecurringExpense, 'id'>;
   classificationCache!: EntityTable<ClassificationCache, 'id'>;
   fixedIncomes!: EntityTable<FixedIncome, 'id'>;
+  spendingDNA!: EntityTable<SpendingDNA, 'id'>;
+  coachingCache!: EntityTable<CoachingCache, 'id'>;
 
   constructor() {
     super('gagaphoo-db');
@@ -110,6 +130,18 @@ class GagaphooDatabase extends Dexie {
       recurringExpenses: '++id, categoryId, isActive',
       classificationCache: '++id, memoPattern',
       fixedIncomes: '++id, isActive',
+    });
+
+    // 버전 5: 소비 DNA + AI 코칭 캐시 테이블 추가
+    this.version(5).stores({
+      transactions: '++id, date, categoryId, type, recurringId',
+      categories: '++id, name',
+      budgets: '++id, categoryId, month',
+      recurringExpenses: '++id, categoryId, isActive',
+      classificationCache: '++id, memoPattern',
+      fixedIncomes: '++id, isActive',
+      spendingDNA: '++id, month',
+      coachingCache: '++id, month',
     });
   }
 }
