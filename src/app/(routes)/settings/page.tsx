@@ -12,6 +12,12 @@ const settingsMenus = [
         icon: '💰',
       },
       {
+        href: '/settings/income',
+        label: '고정 수입 관리',
+        description: '급여·부수입 등 월 고정 수입 관리',
+        icon: '💵',
+      },
+      {
         href: '/settings/recurring',
         label: '반복 지출',
         description: '구독·월세 등 정기 지출 관리',

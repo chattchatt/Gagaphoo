@@ -45,6 +45,15 @@ export interface RecurringExpense {
   createdAt: Date;
 }
 
+// 고정 수입 (급여, 부수입 등)
+export interface FixedIncome {
+  id: number;
+  amount: number;
+  memo: string;      // e.g. "급여", "부수입"
+  isActive: boolean;
+  createdAt: Date;
+}
+
 // AI 분류 결과 캐시
 export interface ClassificationCache {
   id: number;
@@ -61,6 +70,7 @@ class GagaphooDatabase extends Dexie {
   budgets!: EntityTable<Budget, 'id'>;
   recurringExpenses!: EntityTable<RecurringExpense, 'id'>;
   classificationCache!: EntityTable<ClassificationCache, 'id'>;
+  fixedIncomes!: EntityTable<FixedIncome, 'id'>;
 
   constructor() {
     super('gagaphoo-db');
@@ -90,6 +100,16 @@ class GagaphooDatabase extends Dexie {
       budgets: '++id, categoryId, month',
       recurringExpenses: '++id, categoryId, isActive',
       classificationCache: '++id, memoPattern',
+    });
+
+    // 버전 4: 고정 수입 테이블 추가
+    this.version(4).stores({
+      transactions: '++id, date, categoryId, type, recurringId',
+      categories: '++id, name',
+      budgets: '++id, categoryId, month',
+      recurringExpenses: '++id, categoryId, isActive',
+      classificationCache: '++id, memoPattern',
+      fixedIncomes: '++id, isActive',
     });
   }
 }

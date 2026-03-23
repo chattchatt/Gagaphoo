@@ -7,9 +7,10 @@ import { formatCurrency } from '@/lib/format';
 import CategoryPieChart from '@/components/charts/CategoryPieChart';
 import MonthlyBarChart from '@/components/charts/MonthlyBarChart';
 import TrendLineChart from '@/components/charts/TrendLineChart';
+import CalendarView from '@/components/charts/CalendarView';
 
 // 차트 탭 타입
-type ChartTab = 'pie' | 'bar' | 'line';
+type ChartTab = 'pie' | 'bar' | 'line' | 'calendar';
 
 // 월 이동 헬퍼
 function getMonthLabel(year: number, month: number): string {
@@ -44,6 +45,7 @@ const chartTabs: { id: ChartTab; label: string }[] = [
   { id: 'pie', label: '파이' },
   { id: 'bar', label: '막대' },
   { id: 'line', label: '라인' },
+  { id: 'calendar', label: '캘린더' },
 ];
 
 // 카테고리별 거래 포함 데이터 타입
@@ -280,6 +282,9 @@ export default function ReportPage() {
             )}
             {activeTab === 'line' && (
               <TrendLineChart data={trendData} />
+            )}
+            {activeTab === 'calendar' && (
+              <CalendarView year={year} month={month} />
             )}
           </div>
         </section>

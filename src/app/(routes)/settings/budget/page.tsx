@@ -4,9 +4,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Category } from '@/lib/db';
+import Link from 'next/link';
 import { initializeDB } from '@/lib/seed';
 import { parseCurrencyInput } from '@/lib/format';
-import { upsertBudget } from '@/lib/budget';
+import { upsertBudget, getFixedIncomeTotal } from '@/lib/budget';
 
 // 수입 전용 카테고리 이름 (예산 설정 제외)
 const INCOME_CATEGORY_NAMES = ['기타수입', '급여'];
@@ -72,6 +73,12 @@ export default function BudgetSettingsPage() {
     () => db.budgets.where('month').equals(month).toArray(),
     [month]
   );
+
+  // 활성 고정 수입 합계 (실시간)
+  const fixedIncomeTotal = useLiveQuery(
+    () => getFixedIncomeTotal(),
+    []
+  ) ?? 0;
 
   // 예산 로드 → inputs 동기화
   useEffect(() => {
@@ -221,6 +228,42 @@ export default function BudgetSettingsPage() {
           이전 달 예산 불러오기
         </button>
 
+        {/* 고정 수입 배너 */}
+        {fixedIncomeTotal > 0 ? (
+          (() => {
+            // 현재 입력값 기준 총 예산 계산
+            const totalBudgetInput = Object.values(inputs).reduce((sum, v) => {
+              const n = Number(v.replace(/,/g, ''));
+              return sum + (isNaN(n) ? 0 : n);
+            }, 0);
+            const isOver = totalBudgetInput > fixedIncomeTotal;
+            return (
+              <div className={`rounded-2xl px-5 py-3 flex items-center justify-between ${isOver ? 'bg-red-50 border border-red-100' : 'bg-blue-50 border border-blue-100'}`}>
+                <div>
+                  <p className={`text-xs font-medium ${isOver ? 'text-red-500' : 'text-[#3182F6]'}`}>
+                    고정 수입: ₩{fixedIncomeTotal.toLocaleString('ko-KR')}
+                  </p>
+                  {isOver && (
+                    <p className="text-xs text-red-400 mt-0.5">
+                      예산 합계가 수입을 초과했습니다
+                    </p>
+                  )}
+                </div>
+                <Link href="/settings/income" className="text-xs text-gray-400 hover:text-gray-600 underline">
+                  수입 관리
+                </Link>
+              </div>
+            );
+          })()
+        ) : (
+          <div className="rounded-2xl px-5 py-3 bg-gray-50 border border-gray-100 flex items-center justify-between">
+            <p className="text-xs text-gray-400">고정 수입을 설정하면 예산 비율을 확인할 수 있습니다.</p>
+            <Link href="/settings/income" className="text-xs text-[#3182F6] hover:underline flex-shrink-0 ml-2">
+              설정하기
+            </Link>
+          </div>
+        )}
+
         {/* 카테고리별 예산 입력 */}
         <section className="bg-white rounded-2xl shadow-sm overflow-hidden divide-y divide-gray-50">
           {!categories ? (
@@ -255,6 +298,16 @@ export default function BudgetSettingsPage() {
                       />
                     </div>
                   </div>
+
+                  {/* 수입 대비 비율 힌트 */}
+                  {fixedIncomeTotal > 0 && inputs[cat.id] && !error && (() => {
+                    const amt = Number((inputs[cat.id] ?? '').replace(/,/g, ''));
+                    if (!amt) return null;
+                    const pct = Math.round((amt / fixedIncomeTotal) * 100);
+                    return (
+                      <p className="mt-1 text-xs text-gray-400 text-right">수입의 {pct}%</p>
+                    );
+                  })()}
 
                   {/* 에러 메시지 */}
                   {error && (
