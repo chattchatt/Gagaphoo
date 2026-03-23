@@ -59,9 +59,9 @@ const settingsMenus = [
 // 설정 페이지 (서버 컴포넌트 — 상태 없음)
 export default function SettingsPage() {
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
+    <div className="min-h-screen pb-20 md:pb-6">
       {/* 상단 헤더 */}
-      <div className="bg-white px-5 pt-6 pb-4 border-b border-gray-100">
+      <div className="glass-header px-5 pt-6 pb-4">
         <h1 className="text-xl font-bold text-gray-900">설정</h1>
       </div>
 
@@ -74,7 +74,7 @@ export default function SettingsPage() {
             </h2>
 
             {/* 메뉴 카드 */}
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden divide-y divide-gray-50">
+            <div className="glass-card overflow-hidden divide-y divide-gray-50">
               {group.items.map((item) => {
                 const content = (
                   <>

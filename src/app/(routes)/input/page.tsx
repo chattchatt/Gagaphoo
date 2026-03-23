@@ -242,12 +242,12 @@ export default function InputPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
+    <div className="min-h-screen pb-20 md:pb-6">
       {/* 토스트 */}
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
 
       {/* 상단 헤더 */}
-      <div className="bg-white px-5 pt-6 pb-4 border-b border-gray-100 flex items-center gap-3">
+      <div className="glass-header px-5 pt-6 pb-4 flex items-center gap-3">
         <button
           type="button"
           onClick={() => router.back()}
@@ -289,7 +289,7 @@ export default function InputPage() {
         </div>
 
         {/* 금액 입력 */}
-        <section className="bg-white rounded-2xl p-5 shadow-sm">
+        <section className="glass-card-heavy p-5">
           <label className="block text-sm text-gray-500 mb-2">금액</label>
           <div className="flex items-center gap-2">
             <span className="text-3xl font-bold text-gray-400">₩</span>
@@ -309,7 +309,7 @@ export default function InputPage() {
         </section>
 
         {/* 메모 입력 */}
-        <section className="bg-white rounded-2xl p-5 shadow-sm">
+        <section className="glass-card-heavy p-5">
           <label className="block text-sm text-gray-500 mb-2">메모</label>
           <input
             type="text"
@@ -323,7 +323,7 @@ export default function InputPage() {
         </section>
 
         {/* 날짜 선택 */}
-        <section className="bg-white rounded-2xl p-5 shadow-sm">
+        <section className="glass-card-heavy p-5">
           <label className="block text-sm text-gray-500 mb-2">날짜</label>
           <input
             type="date"
@@ -335,7 +335,7 @@ export default function InputPage() {
         </section>
 
         {/* 카테고리 선택 */}
-        <section className="bg-white rounded-2xl p-5 shadow-sm">
+        <section className="glass-card-heavy p-5">
           <div className="flex items-center justify-between mb-3">
             <label className="block text-sm text-gray-500">카테고리</label>
             {aiLoading && (

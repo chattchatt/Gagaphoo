@@ -63,25 +63,25 @@ export default function BudgetIncomeReport({ year, month }: Props) {
     <div className="space-y-4">
       {/* 요약 통계 카드 */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-white rounded-2xl shadow-sm px-4 py-3">
+        <div className="glass-card px-4 py-3">
           <p className="text-xs text-gray-400 mb-1">월 고정 수입</p>
           <p className="text-base font-bold text-gray-900">
             ₩{summary.totalIncome.toLocaleString('ko-KR')}
           </p>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm px-4 py-3">
+        <div className="glass-card px-4 py-3">
           <p className="text-xs text-gray-400 mb-1">총 지출</p>
           <p className="text-base font-bold text-gray-900">
             ₩{summary.totalSpent.toLocaleString('ko-KR')}
           </p>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm px-4 py-3">
+        <div className="glass-card px-4 py-3">
           <p className="text-xs text-gray-400 mb-1">총 예산</p>
           <p className="text-base font-bold text-gray-900">
             ₩{summary.totalBudget.toLocaleString('ko-KR')}
           </p>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm px-4 py-3">
+        <div className="glass-card px-4 py-3">
           <p className="text-xs text-gray-400 mb-1">저축률</p>
           <p className="text-base font-bold" style={{ color: savingsColor }}>
             {summary.savingsRate}%
@@ -100,7 +100,7 @@ export default function BudgetIncomeReport({ year, month }: Props) {
 
       {/* 카테고리별 비교 차트 */}
       {rows.length > 0 ? (
-        <div className="bg-white rounded-2xl shadow-sm px-4 py-4">
+        <div className="glass-card px-4 py-4">
           <h3 className="text-sm font-semibold text-gray-700 mb-3">수입 대비 카테고리별 비율 (%)</h3>
           <ResponsiveContainer width="100%" height={rows.length * 52 + 40}>
             <BarChart
@@ -149,7 +149,7 @@ export default function BudgetIncomeReport({ year, month }: Props) {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm py-8 text-center text-sm text-gray-400">
+        <div className="glass-card py-8 text-center text-sm text-gray-400">
           {month}월 예산이 설정되지 않았습니다.
         </div>
       )}

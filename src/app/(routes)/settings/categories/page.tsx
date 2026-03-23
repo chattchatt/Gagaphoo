@@ -86,7 +86,7 @@ function CategoryModal({
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-end md:items-center justify-center" onClick={onClose}>
       <div
-        className="bg-white w-full max-w-lg rounded-t-2xl md:rounded-2xl p-5 space-y-4 max-h-[85vh] overflow-y-auto"
+        className="glass-card-heavy w-full max-w-lg rounded-t-2xl md:rounded-2xl p-5 space-y-4 max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-bold text-gray-900">
@@ -231,11 +231,11 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
+    <div className="min-h-screen pb-20 md:pb-6">
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
 
       {/* 상단 헤더 */}
-      <div className="bg-white px-5 pt-6 pb-4 border-b border-gray-100 flex items-center gap-3">
+      <div className="glass-header px-5 pt-6 pb-4 flex items-center gap-3">
         <button
           type="button"
           onClick={() => router.back()}
@@ -251,7 +251,7 @@ export default function CategoriesPage() {
 
       <div className="px-4 py-4 space-y-3 max-w-lg mx-auto">
         {/* 카테고리 목록 */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden divide-y divide-gray-50">
+        <div className="glass-card overflow-hidden divide-y divide-gray-50">
           {categories.map((cat) => (
             <div key={cat.id} className="flex items-center gap-3 px-5 py-3">
               <span
@@ -314,7 +314,7 @@ export default function CategoriesPage() {
       {/* 삭제 확인 모달 */}
       {confirmDelete && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setConfirmDelete(null)}>
-          <div className="bg-white rounded-2xl p-5 mx-4 max-w-sm w-full space-y-4" onClick={(e) => e.stopPropagation()}>
+          <div className="glass-card-heavy p-5 mx-4 max-w-sm w-full space-y-4" onClick={(e) => e.stopPropagation()}>
             <p className="text-sm text-gray-900 text-center">
               <span className="text-xl">{confirmDelete.icon}</span>{' '}
               <span className="font-semibold">{confirmDelete.name}</span> 카테고리를 삭제할까요?

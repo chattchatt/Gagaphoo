@@ -93,7 +93,7 @@ export default function TransactionDetail({
       />
 
       {/* 바텀시트 — 하단에서 슬라이드업 */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-xl max-w-2xl mx-auto animate-slide-up">
+      <div className="fixed bottom-0 left-0 right-0 z-50 glass-card-heavy rounded-t-2xl rounded-b-none shadow-xl max-w-2xl mx-auto animate-slide-up">
         {/* 핸들 바 */}
         <div className="flex justify-center pt-3 pb-1">
           <div className="w-10 h-1 bg-gray-200 rounded-full" />

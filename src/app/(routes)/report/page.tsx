@@ -199,15 +199,15 @@ export default function ReportPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
+    <div className="min-h-screen pb-20 md:pb-6">
       {/* 상단 헤더 */}
-      <div className="bg-white px-5 pt-6 pb-4 border-b border-gray-100">
+      <div className="glass-header px-5 pt-6 pb-4">
         <h1 className="text-xl font-bold text-gray-900">지출 리포트</h1>
       </div>
 
       <div className="px-4 py-4 space-y-4 max-w-2xl mx-auto">
         {/* 월 선택기 */}
-        <section className="bg-white rounded-2xl p-4 shadow-sm">
+        <section className="glass-card p-4">
           <div className="flex items-center justify-between">
             <button
               type="button"
@@ -236,7 +236,7 @@ export default function ReportPage() {
         </section>
 
         {/* 총 지출 요약 + 전월 대비 증감 */}
-        <section className="bg-white rounded-2xl p-5 shadow-sm">
+        <section className="glass-card-heavy p-5">
           <p className="text-sm text-gray-500 mb-1">총 지출</p>
           <p className="text-3xl font-bold text-gray-900">
             {formatCurrency(totalExpense)}
@@ -253,7 +253,7 @@ export default function ReportPage() {
         </section>
 
         {/* 차트 영역 — 탭 전환 */}
-        <section className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <section className="glass-card overflow-hidden">
           {/* 탭 헤더 */}
           <div className="flex border-b border-gray-100">
             {chartTabs.map((tab) => (
@@ -290,7 +290,7 @@ export default function ReportPage() {
         </section>
 
         {/* 카테고리별 지출 목록 (아코디언) */}
-        <section className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <section className="glass-card overflow-hidden">
           <h2 className="px-5 pt-4 pb-2 text-sm font-semibold text-gray-700">
             카테고리별 지출
           </h2>

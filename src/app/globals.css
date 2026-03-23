@@ -48,6 +48,13 @@
   --text-primary: #191F28;
   --text-secondary: #6B7684;
   --text-tertiary: #B0B8C1;
+
+  /* 글래스모피즘 토큰 */
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-bg-heavy: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.35);
+  --glass-shadow: 0 8px 32px rgba(49, 130, 246, 0.08);
+  --glass-blur: 12px;
 }
 
 /* 다크모드 변수 (.dark 클래스 전략) */
@@ -61,6 +68,12 @@
   --text-primary: #F9FAFB;
   --text-secondary: #B0B8C1;
   --text-tertiary: #6B7684;
+
+  /* 다크 글래스 토큰 — opacity 높여 가독성 확보 */
+  --glass-bg: rgba(25, 31, 40, 0.55);
+  --glass-bg-heavy: rgba(25, 31, 40, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 }
 
 body {
@@ -69,6 +82,66 @@ body {
   font-family: var(--font-pretendard);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* 앱 배경 그라데이션 — 글래스 효과가 보이려면 배경 필수 */
+.glass-gradient-bg {
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(49, 130, 246, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(49, 130, 246, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(147, 197, 253, 0.06) 0%, transparent 70%),
+    #f0f4fa;
+}
+
+.dark .glass-gradient-bg {
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(49, 130, 246, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(49, 130, 246, 0.08) 0%, transparent 50%),
+    #0f1319;
+}
+
+/* 글래스 카드 — 메인 UI 카드용 */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 1rem;
+}
+
+/* 글래스 카드 (강화) — 입력 폼, 상세 보기 등 가독성 중요한 곳 */
+.glass-card-heavy {
+  background: var(--glass-bg-heavy);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 1rem;
+}
+
+/* 글래스 네비게이션 — BottomNav, Sidebar */
+.glass-nav {
+  background: var(--glass-bg-heavy);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-color: var(--glass-border);
+}
+
+/* 글래스 헤더 */
+.glass-header {
+  background: var(--glass-bg-heavy);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+/* 글래스 오버레이 — 모달/바텀시트 배경 */
+.glass-overlay {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
 }
 
 /* iOS safe area 하단 여백 지원 */

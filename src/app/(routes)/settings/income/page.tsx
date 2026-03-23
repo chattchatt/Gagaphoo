@@ -92,12 +92,12 @@ export default function IncomeSettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
+    <div className="min-h-screen pb-20 md:pb-6">
       {/* 토스트 */}
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
 
       {/* 상단 헤더 */}
-      <div className="bg-white px-5 pt-6 pb-4 border-b border-gray-100 flex items-center gap-3">
+      <div className="glass-header px-5 pt-6 pb-4 flex items-center gap-3">
         <button
           type="button"
           onClick={() => router.back()}
@@ -119,7 +119,7 @@ export default function IncomeSettingsPage() {
         </section>
 
         {/* 새 수입 추가 폼 */}
-        <section className="bg-white rounded-2xl shadow-sm px-5 py-4 space-y-3">
+        <section className="glass-card px-5 py-4 space-y-3">
           <h2 className="text-sm font-semibold text-gray-700">새 고정 수입 추가</h2>
 
           {/* 메모 입력 */}
@@ -161,7 +161,7 @@ export default function IncomeSettingsPage() {
         </section>
 
         {/* 고정 수입 목록 */}
-        <section className="bg-white rounded-2xl shadow-sm overflow-hidden divide-y divide-gray-50">
+        <section className="glass-card overflow-hidden divide-y divide-gray-50">
           {!fixedIncomes ? (
             <div className="py-10 text-center text-sm text-gray-400">불러오는 중...</div>
           ) : fixedIncomes.length === 0 ? (

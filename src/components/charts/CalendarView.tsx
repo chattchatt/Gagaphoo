@@ -158,7 +158,7 @@ export default function CalendarView({ year, month }: Props) {
       <div className="grid grid-cols-7 gap-px bg-gray-100 rounded-xl overflow-hidden border border-gray-100">
         {grid.map((day, idx) => {
           if (day === null) {
-            return <div key={`empty-${idx}`} className="bg-white h-16" />;
+            return <div key={`empty-${idx}`} className="h-16" />;
           }
 
           const data = dailyData?.get(day);
@@ -174,7 +174,7 @@ export default function CalendarView({ year, month }: Props) {
               onDragOver={(e) => handleDragOver(e, day)}
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, day)}
-              className={`bg-white h-16 flex flex-col items-center pt-1 px-0.5 transition-colors hover:bg-blue-50 ${
+              className={`h-16 flex flex-col items-center pt-1 px-0.5 transition-colors hover:bg-blue-50 ${
                 isExpanded ? 'bg-blue-50' : ''
               } ${dragOverDay === day ? 'bg-blue-50 ring-2 ring-inset ring-blue-300' : ''}`}
             >

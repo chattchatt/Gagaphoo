@@ -167,12 +167,12 @@ export default function BudgetSettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
+    <div className="min-h-screen pb-20 md:pb-6">
       {/* 토스트 */}
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
 
       {/* 상단 헤더 */}
-      <div className="bg-white px-5 pt-6 pb-4 border-b border-gray-100 flex items-center gap-3">
+      <div className="glass-header px-5 pt-6 pb-4 flex items-center gap-3">
         <button
           type="button"
           onClick={() => router.back()}
@@ -188,7 +188,7 @@ export default function BudgetSettingsPage() {
 
       <div className="px-4 py-4 space-y-4 max-w-lg mx-auto">
         {/* 월 선택기 */}
-        <section className="bg-white rounded-2xl px-5 py-4 shadow-sm flex items-center justify-between">
+        <section className="glass-card px-5 py-4 flex items-center justify-between">
           <button
             type="button"
             onClick={() => setMonth(getPrevMonth(month))}
@@ -265,7 +265,7 @@ export default function BudgetSettingsPage() {
         )}
 
         {/* 카테고리별 예산 입력 */}
-        <section className="bg-white rounded-2xl shadow-sm overflow-hidden divide-y divide-gray-50">
+        <section className="glass-card overflow-hidden divide-y divide-gray-50">
           {!categories ? (
             <div className="py-10 text-center text-sm text-gray-400">불러오는 중...</div>
           ) : (

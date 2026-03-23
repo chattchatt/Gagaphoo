@@ -66,9 +66,9 @@ export default function SearchPage() {
   const grouped = useMemo(() => groupByDate(searchResults), [searchResults]);
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
+    <div className="min-h-screen pb-20 md:pb-6">
       {/* 상단 검색 헤더 */}
-      <div className="bg-white px-5 pt-6 pb-4 border-b border-gray-100 sticky top-0 z-10">
+      <div className="glass-header px-5 pt-6 pb-4 sticky top-0 z-10">
         <h1 className="text-xl font-bold text-gray-900 mb-3">검색</h1>
         <div className="relative">
           <svg
@@ -124,7 +124,7 @@ export default function SearchPage() {
 
         {/* 검색 결과 — 날짜별 그룹 */}
         {grouped.map(({ date, transactions }) => (
-          <section key={date} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <section key={date} className="glass-card overflow-hidden">
             <div className="px-5 pt-4 pb-2 flex items-center justify-between">
               <span className="text-xs font-semibold text-gray-500">{formatDate(date)}</span>
               <span className="text-xs text-gray-400">

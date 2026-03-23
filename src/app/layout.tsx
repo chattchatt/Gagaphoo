@@ -24,7 +24,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="h-full bg-[var(--background)] text-[var(--foreground)]">
+      <body className="h-full glass-gradient-bg text-[var(--foreground)]">
         {/* 앱 진입 시 브라우저 알림 권한 요청 */}
         <NotificationPermissionInit />
 

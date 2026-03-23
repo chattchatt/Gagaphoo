@@ -49,9 +49,9 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex flex-col w-64 min-h-screen bg-white border-r border-gray-200 fixed left-0 top-0 z-40">
+    <aside className="hidden md:flex flex-col w-64 min-h-screen glass-nav border-r fixed left-0 top-0 z-40">
       {/* 앱 로고 영역 */}
-      <div className="flex items-center h-16 px-6 border-b border-gray-200">
+      <div className="flex items-center h-16 px-6 border-b border-white/20">
         <span className="text-xl font-bold text-[#3182F6]">GaGapHoo</span>
         <span className="ml-1 text-sm text-gray-400">가계부</span>
       </div>

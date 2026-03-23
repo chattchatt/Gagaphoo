@@ -294,7 +294,7 @@ export default function HomePage() {
   })();
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
+    <div className="min-h-screen pb-20 md:pb-6">
       {/* 반복 지출 자동 처리 토스트 */}
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
 
@@ -314,7 +314,7 @@ export default function HomePage() {
       )}
 
       {/* 상단 헤더 */}
-      <div className="bg-white px-5 pt-6 pb-4 border-b border-gray-100">
+      <div className="glass-header px-5 pt-6 pb-4">
         <p className="text-sm text-gray-400">{todayLabel}</p>
         <h1 className="text-xl font-bold text-gray-900 mt-0.5">오늘의 가계부</h1>
       </div>
@@ -345,7 +345,7 @@ export default function HomePage() {
         </div>
 
         {/* 월별 총 지출 요약 카드 */}
-        <section className="bg-white rounded-2xl p-5 shadow-sm">
+        <section className="glass-card p-5">
           <p className="text-sm text-gray-500 mb-1">{getMonthLabel(viewMonth)} 총 지출</p>
           <p className="text-3xl font-bold text-gray-900">
             {formatCurrency(monthlyTotal)}
@@ -414,7 +414,7 @@ export default function HomePage() {
 
         {/* 오늘 지출 목록 — 이번 달 보기일 때만 표시 */}
         {isCurrentMonth && (
-          <section className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <section className="glass-card overflow-hidden">
             <div className="flex items-center justify-between px-5 pt-4 pb-2">
               <h2 className="text-sm font-semibold text-gray-700">오늘 지출</h2>
               <span className="text-sm font-bold text-[#3182F6]">
@@ -463,7 +463,7 @@ export default function HomePage() {
 
         {/* 오늘 수입 목록 — 이번 달 보기이고 수입이 있을 때만 표시 */}
         {isCurrentMonth && todayIncomes.length > 0 && (
-          <section className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <section className="glass-card overflow-hidden">
             <div className="flex items-center justify-between px-5 pt-4 pb-2">
               <h2 className="text-sm font-semibold text-gray-700">오늘 수입</h2>
               <span className="text-sm font-bold text-[#3182F6]">
@@ -517,7 +517,7 @@ export default function HomePage() {
 
           if (sortedDates.length === 0 && !isCurrentMonth) {
             return (
-              <section className="bg-white rounded-2xl shadow-sm overflow-hidden">
+              <section className="glass-card overflow-hidden">
                 <div className="px-5 py-6 text-center">
                   <p className="text-sm text-gray-400">이 달의 지출 내역이 없습니다</p>
                 </div>
@@ -538,7 +538,7 @@ export default function HomePage() {
             const dateLabel = d.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
 
             return (
-              <section key={date} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+              <section key={date} className="glass-card overflow-hidden">
                 <div className="flex items-center justify-between px-5 pt-4 pb-2">
                   <h2 className="text-sm font-semibold text-gray-700">{dateLabel}</h2>
                   {/* 수입/지출 혼합 시 순수익 표시, 지출만 있으면 지출액 표시 */}
@@ -581,7 +581,7 @@ export default function HomePage() {
 
         {/* 다가오는 반복 지출 섹션 — 이번 달 남은 예정 항목이 있을 때만 표시 */}
         {upcomingRecurring.length > 0 && (
-          <section className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <section className="glass-card overflow-hidden">
             <div className="flex items-center justify-between px-5 pt-4 pb-2">
               <h2 className="text-sm font-semibold text-gray-700">다가오는 반복 지출</h2>
               <Link

@@ -58,7 +58,7 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 safe-area-pb md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 glass-nav border-t safe-area-pb md:hidden">
       <div className="flex items-center justify-around h-16">
         {navItems.map((item) => {
           // 현재 경로와 메뉴 항목 비교 (홈은 정확히 일치, 나머지는 시작 여부)

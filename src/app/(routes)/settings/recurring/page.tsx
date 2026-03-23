@@ -131,7 +131,7 @@ function RecurringModal({
       className="fixed inset-0 z-40 flex items-end justify-center bg-black/40"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="w-full max-w-lg bg-white rounded-t-3xl px-5 pt-5 pb-8 space-y-4">
+      <div className="w-full max-w-lg glass-card-heavy rounded-t-3xl rounded-b-none px-5 pt-5 pb-8 space-y-4">
         {/* 헤더 */}
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold text-gray-900">
@@ -350,7 +350,7 @@ export default function RecurringSettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
+    <div className="min-h-screen pb-20 md:pb-6">
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
 
       {/* 모달 */}
@@ -366,7 +366,7 @@ export default function RecurringSettingsPage() {
       {/* 삭제 확인 다이얼로그 */}
       {deleteConfirm !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl px-6 py-5 mx-4 max-w-sm w-full shadow-xl space-y-4">
+          <div className="glass-card-heavy px-6 py-5 mx-4 max-w-sm w-full shadow-xl space-y-4">
             <p className="text-sm font-medium text-gray-900 text-center">이 반복 지출을 삭제할까요?</p>
             <p className="text-xs text-gray-400 text-center">삭제해도 이미 기록된 거래 내역은 유지됩니다.</p>
             <div className="flex gap-2">
@@ -390,7 +390,7 @@ export default function RecurringSettingsPage() {
       )}
 
       {/* 상단 헤더 */}
-      <div className="bg-white px-5 pt-6 pb-4 border-b border-gray-100 flex items-center gap-3">
+      <div className="glass-header px-5 pt-6 pb-4 flex items-center gap-3">
         <button
           type="button"
           onClick={() => router.back()}
@@ -431,7 +431,7 @@ export default function RecurringSettingsPage() {
             </button>
           </div>
         ) : (
-          <section className="bg-white rounded-2xl shadow-sm overflow-hidden divide-y divide-gray-50">
+          <section className="glass-card overflow-hidden divide-y divide-gray-50">
             {items.map((item) => {
               const cat = categoryMap.get(item.categoryId);
               return (
