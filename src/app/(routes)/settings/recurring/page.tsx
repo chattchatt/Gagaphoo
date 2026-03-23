@@ -157,7 +157,7 @@ function RecurringModal({
             placeholder="예: 넷플릭스 구독"
             value={form.memo}
             onChange={(e) => setForm((f) => ({ ...f, memo: e.target.value }))}
-            className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#3182F6] transition-colors"
+            className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 bg-white outline-none focus:border-[#3182F6] transition-colors"
           />
           {errors.memo && <p className="mt-1 text-xs text-red-500">{errors.memo}</p>}
         </div>
