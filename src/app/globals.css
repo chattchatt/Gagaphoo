@@ -49,31 +49,36 @@
   --text-secondary: #6B7684;
   --text-tertiary: #B0B8C1;
 
-  /* 글래스모피즘 토큰 */
-  --glass-bg: rgba(255, 255, 255, 0.45);
-  --glass-bg-heavy: rgba(255, 255, 255, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.35);
-  --glass-shadow: 0 8px 32px rgba(49, 130, 246, 0.08);
-  --glass-blur: 12px;
+  /* Liquid Glass 토큰 (Apple + Linear 참고) */
+  --glass-bg: rgba(255, 255, 255, 0.2);
+  --glass-bg-heavy: rgba(255, 255, 255, 0.35);
+  --glass-bg-nav: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-border-strong: rgba(255, 255, 255, 0.8);
+  --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  --glass-shadow-inset: inset 0 4px 20px rgba(255, 255, 255, 0.3);
 }
 
 /* 다크모드 변수 (.dark 클래스 전략) */
 .dark {
-  --background: #191F28;
+  --background: #0f1319;
   --foreground: #F9FAFB;
-  --surface: #333D4B;
-  --border: #4E5968;
-  --primary: #3182F6;
+  --surface: #1a2030;
+  --border: #2a3040;
+  --primary: #5ba0ff;
   --primary-hover: #CCE5FF;
   --text-primary: #F9FAFB;
   --text-secondary: #B0B8C1;
   --text-tertiary: #6B7684;
 
-  /* 다크 글래스 토큰 — opacity 높여 가독성 확보 */
-  --glass-bg: rgba(25, 31, 40, 0.55);
-  --glass-bg-heavy: rgba(25, 31, 40, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  /* 다크 Liquid Glass 토큰 */
+  --glass-bg: rgba(15, 19, 25, 0.5);
+  --glass-bg-heavy: rgba(20, 26, 36, 0.65);
+  --glass-bg-nav: rgba(15, 19, 25, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-border-strong: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 body {
@@ -84,63 +89,65 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* 앱 배경 그라데이션 — 글래스 효과가 보이려면 배경 필수 */
+/* 앱 배경 — 진한 그라데이션으로 글래스 효과 극대화 */
 .glass-gradient-bg {
   background:
-    radial-gradient(ellipse at 20% 0%, rgba(49, 130, 246, 0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 100%, rgba(49, 130, 246, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(147, 197, 253, 0.06) 0%, transparent 70%),
-    #f0f4fa;
+    radial-gradient(ellipse at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 0%, rgba(49, 130, 246, 0.18) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 50%, rgba(236, 72, 153, 0.06) 0%, transparent 40%),
+    linear-gradient(135deg, #eef2ff 0%, #e0f2fe 30%, #f0e7fe 60%, #fce7f3 100%);
 }
 
 .dark .glass-gradient-bg {
   background:
-    radial-gradient(ellipse at 20% 0%, rgba(49, 130, 246, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 100%, rgba(49, 130, 246, 0.08) 0%, transparent 50%),
-    #0f1319;
+    radial-gradient(ellipse at 0% 0%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 0%, rgba(49, 130, 246, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
+    linear-gradient(135deg, #0f1319 0%, #111827 50%, #0f1319 100%);
 }
 
-/* 글래스 카드 — 메인 UI 카드용 */
+/* Liquid Glass 카드 — saturate로 배경 색감 강조, inset shadow로 깊이감 */
 .glass-card {
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(4px) saturate(180%);
+  -webkit-backdrop-filter: blur(4px) saturate(180%);
   border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
   border-radius: 1rem;
+  box-shadow: var(--glass-shadow), var(--glass-shadow-inset);
 }
 
-/* 글래스 카드 (강화) — 입력 폼, 상세 보기 등 가독성 중요한 곳 */
+/* 강화 글래스 — 입력 폼, 모달, 바텀시트 (가독성 우선) */
 .glass-card-heavy {
   background: var(--glass-bg-heavy);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(8px) saturate(180%);
+  -webkit-backdrop-filter: blur(8px) saturate(180%);
+  border: 1px solid var(--glass-border-strong);
   border-radius: 1rem;
+  box-shadow: var(--glass-shadow), var(--glass-shadow-inset);
 }
 
-/* 글래스 네비게이션 — BottomNav, Sidebar */
+/* 네비게이션 글래스 — 높은 opacity + 강한 blur로 항상 읽기 쉽게 */
 .glass-nav {
-  background: var(--glass-bg-heavy);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--glass-bg-nav);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-color: var(--glass-border);
 }
 
-/* 글래스 헤더 */
+/* 헤더 글래스 */
 .glass-header {
-  background: var(--glass-bg-heavy);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--glass-bg-nav);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid var(--glass-border);
 }
 
 /* 글래스 오버레이 — 모달/바텀시트 배경 */
 .glass-overlay {
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(4px) saturate(180%);
+  -webkit-backdrop-filter: blur(4px) saturate(180%);
   border: 1px solid var(--glass-border);
 }
 
