@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLiveQuery } from 'dexie-react-hooks';
+import DragToggle from '@/components/DragToggle';
 import { db, type RecurringExpense, type Category } from '@/lib/db';
 import { initializeDB } from '@/lib/seed';
 import { addRecurring, updateRecurring, deleteRecurring } from '@/lib/recurring';
@@ -265,21 +266,11 @@ function RecurringModal({
         {editing && (
           <div className="flex items-center justify-between py-1">
             <span className="text-sm font-medium text-gray-700">활성화</span>
-            <button
-              type="button"
-              onClick={() => setForm((f) => ({ ...f, isActive: !f.isActive }))}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                form.isActive ? 'bg-[#3182F6]' : 'bg-gray-300'
-              }`}
-              aria-checked={form.isActive}
-              role="switch"
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                  form.isActive ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
+            <DragToggle
+              checked={form.isActive}
+              onChange={(v) => setForm((f) => ({ ...f, isActive: v }))}
+              label="활성화"
+            />
           </div>
         )}
 
@@ -453,22 +444,11 @@ export default function RecurringSettingsPage() {
                   </div>
 
                   {/* 활성 토글 */}
-                  <button
-                    type="button"
-                    onClick={() => handleToggleActive(item)}
-                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors flex-shrink-0 ${
-                      item.isActive ? 'bg-[#3182F6]' : 'bg-gray-300'
-                    }`}
-                    aria-checked={item.isActive}
-                    role="switch"
-                    aria-label={item.isActive ? '비활성화' : '활성화'}
-                  >
-                    <span
-                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
-                        item.isActive ? 'translate-x-6' : 'translate-x-1'
-                      }`}
-                    />
-                  </button>
+                  <DragToggle
+                    checked={item.isActive}
+                    onChange={() => handleToggleActive(item)}
+                    label={item.isActive ? '비활성화' : '활성화'}
+                  />
 
                   {/* 수정 버튼 */}
                   <button

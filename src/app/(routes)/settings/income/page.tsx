@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLiveQuery } from 'dexie-react-hooks';
+import DragToggle from '@/components/DragToggle';
 import { db, type FixedIncome } from '@/lib/db';
 import { parseCurrencyInput } from '@/lib/format';
 
@@ -180,20 +181,11 @@ export default function IncomeSettingsPage() {
                 </div>
 
                 {/* 활성 토글 */}
-                <button
-                  type="button"
-                  onClick={() => handleToggle(income)}
-                  className={`w-12 h-7 rounded-full transition-colors flex-shrink-0 relative ${
-                    income.isActive ? 'bg-[#3182F6]' : 'bg-gray-200'
-                  }`}
-                  aria-label={income.isActive ? '비활성화' : '활성화'}
-                >
-                  <span
-                    className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-sm transition-all ${
-                      income.isActive ? 'left-[calc(100%-1.5rem)]' : 'left-1'
-                    }`}
-                  />
-                </button>
+                <DragToggle
+                  checked={income.isActive}
+                  onChange={() => handleToggle(income)}
+                  label={income.isActive ? '비활성화' : '활성화'}
+                />
 
                 {/* 삭제 버튼 */}
                 <button

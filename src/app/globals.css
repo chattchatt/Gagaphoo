@@ -237,6 +237,12 @@ body {
     backdrop-filter: blur(6px) saturate(180%);
     -webkit-backdrop-filter: blur(6px) saturate(180%);
   }
+  .dark .glass-card {
+    background: rgba(15, 19, 25, 0.55);
+  }
+  .dark .glass-card-heavy {
+    background: rgba(20, 26, 36, 0.7);
+  }
 }
 
 /* 데스크톱: 풀 이펙트 */
@@ -248,6 +254,16 @@ body {
   .glass-card-heavy {
     backdrop-filter: blur(12px) saturate(200%);
     -webkit-backdrop-filter: blur(12px) saturate(200%);
+  }
+  .dark .glass-card {
+    background: rgba(15, 19, 25, 0.5);
+    backdrop-filter: blur(10px) saturate(200%);
+    -webkit-backdrop-filter: blur(10px) saturate(200%);
+  }
+  .dark .glass-card-heavy {
+    background: rgba(20, 26, 36, 0.65);
+    backdrop-filter: blur(14px) saturate(200%);
+    -webkit-backdrop-filter: blur(14px) saturate(200%);
   }
 }
 
