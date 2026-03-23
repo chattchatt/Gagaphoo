@@ -65,7 +65,7 @@ export default function SettingsPage() {
         <h1 className="fluid-heading text-gray-900">설정</h1>
       </div>
 
-      <div className="px-4 py-4 space-y-5 max-w-2xl mx-auto">
+      <div className="px-4 py-4 space-y-5 max-w-2xl mx-auto md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
         {settingsMenus.map((group) => (
           <section key={group.group}>
             {/* 그룹 레이블 */}
@@ -74,7 +74,7 @@ export default function SettingsPage() {
             </h2>
 
             {/* 메뉴 카드 */}
-            <div className="glass-card overflow-hidden divide-y divide-gray-50">
+            <div className="glass-card overflow-hidden divide-y divide-white/10">
               {group.items.map((item) => {
                 const content = (
                   <>
@@ -94,7 +94,7 @@ export default function SettingsPage() {
                 );
 
                 return item.href ? (
-                  <Link key={item.href} href={item.href} className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors">
+                  <Link key={item.href} href={item.href} className="flex items-center gap-4 px-5 py-4 hover:bg-white/10 transition-colors">
                     {content}
                   </Link>
                 ) : (

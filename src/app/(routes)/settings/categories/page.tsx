@@ -251,7 +251,7 @@ export default function CategoriesPage() {
 
       <div className="px-4 py-4 space-y-3 max-w-lg mx-auto">
         {/* 카테고리 목록 */}
-        <div className="glass-card overflow-hidden divide-y divide-gray-50">
+        <div className="glass-card overflow-hidden divide-y divide-white/10">
           {categories.map((cat) => (
             <div key={cat.id} className="flex items-center gap-3 px-5 py-3">
               <span

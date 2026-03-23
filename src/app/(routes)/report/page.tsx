@@ -202,7 +202,7 @@ export default function ReportPage() {
     <div className="min-h-screen pb-20 md:pb-6">
       {/* 상단 헤더 */}
       <div className="glass-header px-5 pt-6 pb-4">
-        <h1 className="text-xl font-bold text-gray-900">지출 리포트</h1>
+        <h1 className="fluid-heading font-bold text-gray-900">지출 리포트</h1>
       </div>
 
       <div className="px-4 py-4 space-y-4 max-w-2xl mx-auto">
@@ -212,7 +212,7 @@ export default function ReportPage() {
             <button
               type="button"
               onClick={goToPrevMonth}
-              className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-500"
+              className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-500"
               aria-label="이전 달"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
@@ -225,7 +225,7 @@ export default function ReportPage() {
             <button
               type="button"
               onClick={goToNextMonth}
-              className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-500"
+              className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-500"
               aria-label="다음 달"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
@@ -238,7 +238,7 @@ export default function ReportPage() {
         {/* 총 지출 요약 + 전월 대비 증감 */}
         <section className="glass-card-heavy p-5">
           <p className="text-sm text-gray-500 mb-1">총 지출</p>
-          <p className="text-3xl font-bold text-gray-900">
+          <p className="fluid-amount font-bold text-gray-900">
             {formatCurrency(totalExpense)}
           </p>
           {/* 전월 대비 증감 표시 — 데이터가 있을 때만 */}
@@ -252,6 +252,8 @@ export default function ReportPage() {
           )}
         </section>
 
+        {/* 태블릿 2-column: 차트 + 카테고리 목록 */}
+        <div className="md:grid md:grid-cols-2 md:gap-4 space-y-4 md:space-y-0">
         {/* 차트 영역 — 탭 전환 */}
         <section className="glass-card overflow-hidden">
           {/* 탭 헤더 */}
@@ -366,6 +368,7 @@ export default function ReportPage() {
             </ul>
           )}
         </section>
+        </div>{/* 태블릿 2-column 끝 */}
       </div>
     </div>
   );

@@ -456,7 +456,7 @@ export default function RecurringSettingsPage() {
                   <button
                     type="button"
                     onClick={() => handleToggleActive(item)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ${
+                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors flex-shrink-0 ${
                       item.isActive ? 'bg-[#3182F6]' : 'bg-gray-300'
                     }`}
                     aria-checked={item.isActive}
@@ -464,7 +464,7 @@ export default function RecurringSettingsPage() {
                     aria-label={item.isActive ? '비활성화' : '활성화'}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
                         item.isActive ? 'translate-x-6' : 'translate-x-1'
                       }`}
                     />
@@ -474,7 +474,7 @@ export default function RecurringSettingsPage() {
                   <button
                     type="button"
                     onClick={() => { setEditing(item); setModalOpen(true); }}
-                    className="p-1.5 text-gray-400 hover:text-gray-700 flex-shrink-0"
+                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:text-gray-700 flex-shrink-0"
                     aria-label="수정"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -487,7 +487,7 @@ export default function RecurringSettingsPage() {
                   <button
                     type="button"
                     onClick={() => setDeleteConfirm(item.id)}
-                    className="p-1.5 text-gray-400 hover:text-red-500 flex-shrink-0"
+                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:text-red-500 flex-shrink-0"
                     aria-label="삭제"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
