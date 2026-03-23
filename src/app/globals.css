@@ -151,6 +151,78 @@ body {
   border: 1px solid var(--glass-border);
 }
 
+/* ─── 다크모드 텍스트 색상 오버라이드 ─── */
+/* 라이트모드의 gray 텍스트를 다크 글래스 배경에서 읽을 수 있도록 반전 */
+.dark .text-gray-900 { color: #f3f4f6 !important; }
+.dark .text-gray-800 { color: #e5e7eb !important; }
+.dark .text-gray-700 { color: #d1d5db !important; }
+.dark .text-gray-600 { color: #b0b8c1 !important; }
+.dark .text-gray-500 { color: #9ca3af !important; }
+.dark .text-gray-400 { color: #8b95a1 !important; }
+.dark .text-gray-300 { color: #6b7684 !important; }
+
+/* 다크모드 배경 관련 오버라이드 */
+.dark .bg-gray-50 { background-color: rgba(255, 255, 255, 0.04) !important; }
+.dark .bg-gray-100 { background-color: rgba(255, 255, 255, 0.06) !important; }
+.dark .bg-gray-200 { background-color: rgba(255, 255, 255, 0.08) !important; }
+.dark .divide-gray-50 > :not(:last-child) { border-color: rgba(255, 255, 255, 0.06) !important; }
+.dark .divide-gray-100 > :not(:last-child) { border-color: rgba(255, 255, 255, 0.08) !important; }
+
+/* 다크모드 보더 오버라이드 */
+.dark .border-gray-100 { border-color: rgba(255, 255, 255, 0.06) !important; }
+.dark .border-gray-200 { border-color: rgba(255, 255, 255, 0.1) !important; }
+
+/* 다크모드 placeholder */
+.dark .placeholder\:text-gray-200::placeholder,
+.dark .placeholder\:text-gray-300::placeholder { color: #4e5968 !important; }
+
+/* 다크모드 경고/정보 배경 */
+.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.12) !important; }
+.dark .bg-orange-50 { background-color: rgba(249, 115, 22, 0.12) !important; }
+.dark .bg-blue-50 { background-color: rgba(49, 130, 246, 0.12) !important; }
+
+/* ─── 반응형: 모바일 vs 데스크톱 글래스 차등 적용 ─── */
+
+/* 모바일: blur 줄이고 opacity 높여 성능+가독성 확보 */
+@media (max-width: 767px) {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(2px) saturate(160%);
+    -webkit-backdrop-filter: blur(2px) saturate(160%);
+  }
+  .glass-card-heavy {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(4px) saturate(160%);
+    -webkit-backdrop-filter: blur(4px) saturate(160%);
+  }
+  .dark .glass-card {
+    background: rgba(15, 19, 25, 0.6);
+  }
+  .dark .glass-card-heavy {
+    background: rgba(20, 26, 36, 0.75);
+  }
+}
+
+/* 태블릿: 중간 수준 */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .glass-card {
+    backdrop-filter: blur(6px) saturate(180%);
+    -webkit-backdrop-filter: blur(6px) saturate(180%);
+  }
+}
+
+/* 데스크톱: 풀 이펙트 */
+@media (min-width: 1024px) {
+  .glass-card {
+    backdrop-filter: blur(8px) saturate(200%);
+    -webkit-backdrop-filter: blur(8px) saturate(200%);
+  }
+  .glass-card-heavy {
+    backdrop-filter: blur(12px) saturate(200%);
+    -webkit-backdrop-filter: blur(12px) saturate(200%);
+  }
+}
+
 /* iOS safe area 하단 여백 지원 */
 .safe-area-pb {
   padding-bottom: env(safe-area-inset-bottom);
