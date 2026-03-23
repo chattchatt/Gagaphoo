@@ -5,7 +5,7 @@ import { db } from './db';
  * 활성화된 고정 수입 합계 반환
  */
 export async function getFixedIncomeTotal(): Promise<number> {
-  const incomes = await db.fixedIncomes.where('isActive').equals(1).toArray();
+  const incomes = await db.fixedIncomes.filter((i) => i.isActive === true).toArray();
   return incomes.reduce((sum, i) => sum + i.amount, 0);
 }
 
@@ -33,7 +33,7 @@ export async function getBudgetVsIncomeReport(month: string): Promise<{
   };
 }> {
   const [incomes, budgets, transactions, categories] = await Promise.all([
-    db.fixedIncomes.where('isActive').equals(1).toArray(),
+    db.fixedIncomes.filter((i) => i.isActive === true).toArray(),
     db.budgets.where('month').equals(month).toArray(),
     db.transactions
       .where('date')
