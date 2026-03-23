@@ -251,14 +251,14 @@ export default function InputPage() {
         <button
           type="button"
           onClick={() => router.back()}
-          className="text-gray-500 hover:text-gray-700 p-1 -ml-1"
+          className="text-gray-500 hover:text-gray-700 p-2 -ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label="뒤로가기"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5M5 12l7-7M5 12l7 7" />
           </svg>
         </button>
-        <h1 className="text-xl font-bold text-gray-900">내역 입력</h1>
+        <h1 className="fluid-heading font-bold text-gray-900">내역 입력</h1>
       </div>
 
       <div className="px-4 py-6 space-y-4 max-w-lg mx-auto">
@@ -300,7 +300,7 @@ export default function InputPage() {
               placeholder="0"
               value={displayAmount}
               onChange={handleAmountChange}
-              className="flex-1 text-4xl font-bold text-gray-900 bg-transparent outline-none placeholder:text-gray-200 min-w-0"
+              className="flex-1 fluid-amount font-bold text-gray-900 bg-transparent outline-none placeholder:text-gray-200 min-w-0"
             />
           </div>
           {parsedAmount > 0 && (
@@ -360,7 +360,7 @@ export default function InputPage() {
                   key={cat.id}
                   type="button"
                   onClick={() => handleCategorySelect(cat.id)}
-                  className={`relative flex flex-col items-center gap-1 py-3 rounded-xl border-2 transition-all ${
+                  className={`relative flex flex-col items-center gap-1 py-3.5 min-h-[44px] rounded-xl border-2 transition-all ${
                     isSelected
                       ? 'border-[#3182F6] bg-[#EBF5FF]'
                       : 'border-transparent bg-gray-50 hover:bg-gray-100'

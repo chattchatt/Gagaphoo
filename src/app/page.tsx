@@ -335,7 +335,7 @@ export default function HomePage() {
           <button
             onClick={() => setViewMonth((m) => shiftMonth(m, 1))}
             disabled={isCurrentMonth}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm text-gray-500 hover:bg-gray-50 active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            className="w-11 h-11 flex items-center justify-center rounded-full bg-white shadow-sm text-gray-500 hover:bg-gray-50 active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
             aria-label="다음 달"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
@@ -347,7 +347,7 @@ export default function HomePage() {
         {/* 월별 총 지출 요약 카드 */}
         <section className="glass-card p-5">
           <p className="text-sm text-gray-500 mb-1">{getMonthLabel(viewMonth)} 총 지출</p>
-          <p className="text-3xl font-bold text-gray-900">
+          <p className="fluid-amount font-bold text-gray-900">
             {formatCurrency(monthlyTotal)}
           </p>
           {/* 수입이 있을 때만 수입 합계 및 순수익 표시 */}
@@ -416,7 +416,7 @@ export default function HomePage() {
         {isCurrentMonth && (
           <section className="glass-card overflow-hidden">
             <div className="flex items-center justify-between px-5 pt-4 pb-2">
-              <h2 className="text-sm font-semibold text-gray-700">오늘 지출</h2>
+              <h2 className="fluid-body font-semibold text-gray-700">오늘 지출</h2>
               <span className="text-sm font-bold text-[#3182F6]">
                 {formatCurrency(todayTotal)}
               </span>
