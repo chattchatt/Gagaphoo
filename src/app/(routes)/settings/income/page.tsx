@@ -97,22 +97,21 @@ export default function IncomeSettingsPage() {
       {/* 토스트 */}
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
 
-      {/* 상단 헤더 */}
-      <div className="glass-header px-5 pt-6 pb-4 flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="text-gray-500 hover:text-gray-700 touch-target -ml-1"
-          aria-label="뒤로가기"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M5 12l7-7M5 12l7 7" />
-          </svg>
-        </button>
-        <h1 className="fluid-heading text-gray-900">고정 수입 관리</h1>
-      </div>
-
-      <div className="px-4 py-4 space-y-4 max-w-lg mx-auto">
+      <div className="px-4 pt-6 pb-4 space-y-4 max-w-lg mx-auto md:pt-8">
+        {/* 뒤로가기 + 인라인 타이틀 */}
+        <div className="flex items-center gap-2 mb-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="text-gray-400 hover:text-gray-600 touch-target -ml-2"
+            aria-label="뒤로가기"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <h1 className="fluid-heading font-bold text-gray-900">고정 수입 관리</h1>
+        </div>
         {/* 총 고정 수입 요약 */}
         <section className="bg-[#3182F6] rounded-2xl px-5 py-4 text-white">
           <p className="text-sm opacity-80 mb-1">월 고정 수입</p>

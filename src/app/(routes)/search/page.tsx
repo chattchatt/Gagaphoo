@@ -67,8 +67,8 @@ export default function SearchPage() {
 
   return (
     <div className="min-h-screen pb-20 md:pb-6">
-      {/* 상단 검색 헤더 */}
-      <div className="glass-header px-5 pt-6 pb-4 sticky top-0 z-10">
+      <div className="px-4 pt-6 pb-4 md:px-6 md:pt-8 sticky top-0 z-10">
+        {/* 검색 헤더 */}
         <h1 className="fluid-heading text-gray-900 mb-3">검색</h1>
         <div className="relative">
           <svg

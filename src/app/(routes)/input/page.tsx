@@ -246,22 +246,21 @@ export default function InputPage() {
       {/* 토스트 */}
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
 
-      {/* 상단 헤더 */}
-      <div className="glass-header px-5 pt-6 pb-4 flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="text-gray-500 hover:text-gray-700 p-2 -ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
-          aria-label="뒤로가기"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M5 12l7-7M5 12l7 7" />
-          </svg>
-        </button>
-        <h1 className="fluid-heading font-bold text-gray-900">내역 입력</h1>
-      </div>
-
-      <div className="px-4 py-6 space-y-4 max-w-lg mx-auto">
+      <div className="px-4 pt-6 pb-6 space-y-4 max-w-lg mx-auto md:pt-8">
+        {/* 뒤로가기 + 인라인 타이틀 */}
+        <div className="flex items-center gap-2 mb-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="text-gray-400 hover:text-gray-600 touch-target -ml-2"
+            aria-label="뒤로가기"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <h1 className="fluid-heading font-bold text-gray-900">내역 입력</h1>
+        </div>
         {/* 수입/지출 세그먼트 컨트롤 */}
         <div className="bg-gray-100 rounded-2xl p-1 flex">
           <button

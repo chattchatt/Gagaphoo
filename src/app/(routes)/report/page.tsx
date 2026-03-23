@@ -200,12 +200,10 @@ export default function ReportPage() {
 
   return (
     <div className="min-h-screen pb-20 md:pb-6">
-      {/* 상단 헤더 */}
-      <div className="glass-header px-5 pt-6 pb-4">
-        <h1 className="fluid-heading font-bold text-gray-900">지출 리포트</h1>
-      </div>
-
-      <div className="px-4 py-4 space-y-4 max-w-2xl mx-auto">
+      <div className="px-4 pt-8 pb-4 md:px-6 md:pt-10 space-y-4 max-w-2xl mx-auto">
+        <div className="px-1">
+          <h1 className="fluid-heading font-bold text-gray-900">지출 리포트</h1>
+        </div>
         {/* 월 선택기 */}
         <section className="glass-card p-4">
           <div className="flex items-center justify-between">

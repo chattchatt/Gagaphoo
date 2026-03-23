@@ -380,33 +380,31 @@ export default function RecurringSettingsPage() {
         </div>
       )}
 
-      {/* 상단 헤더 */}
-      <div className="glass-header px-5 pt-6 pb-4 flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="text-gray-500 hover:text-gray-700 touch-target -ml-1"
-          aria-label="뒤로가기"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M5 12l7-7M5 12l7 7" />
-          </svg>
-        </button>
-        <h1 className="fluid-heading text-gray-900 flex-1">반복 지출</h1>
-        {/* 추가 버튼 */}
-        <button
-          type="button"
-          onClick={() => { setEditing(null); setModalOpen(true); }}
-          className="flex items-center gap-1.5 bg-[#3182F6] text-white text-sm font-medium px-3 py-1.5 rounded-full hover:bg-[#1B64DA] transition-colors"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 5v14M5 12h14" />
-          </svg>
-          추가
-        </button>
-      </div>
-
-      <div className="px-4 py-4 max-w-lg mx-auto space-y-3">
+      <div className="px-4 pt-6 pb-4 md:pt-8 max-w-lg mx-auto space-y-3">
+        {/* 뒤로가기 + 타이틀 + 추가 버튼 */}
+        <div className="flex items-center gap-2 mb-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="text-gray-400 hover:text-gray-600 touch-target -ml-2"
+            aria-label="뒤로가기"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <h1 className="fluid-heading font-bold text-gray-900 flex-1">반복 지출</h1>
+          <button
+            type="button"
+            onClick={() => { setEditing(null); setModalOpen(true); }}
+            className="flex items-center gap-1.5 bg-[#3182F6] text-white text-sm font-medium px-3 py-1.5 rounded-full hover:bg-[#1B64DA] transition-colors"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            추가
+          </button>
+        </div>
         {!items ? (
           <div className="py-10 text-center text-sm text-gray-400">불러오는 중...</div>
         ) : items.length === 0 ? (
