@@ -8,9 +8,12 @@ import CategoryPieChart from '@/components/charts/CategoryPieChart';
 import MonthlyBarChart from '@/components/charts/MonthlyBarChart';
 import TrendLineChart from '@/components/charts/TrendLineChart';
 import CalendarView from '@/components/charts/CalendarView';
+import SpendingDNAChart from '@/components/charts/SpendingDNAChart';
+import SimulationChart from '@/components/charts/SimulationChart';
+import CoachingLetter from '@/components/charts/CoachingLetter';
 
 // 차트 탭 타입
-type ChartTab = 'pie' | 'bar' | 'line' | 'calendar';
+type ChartTab = 'pie' | 'bar' | 'line' | 'calendar' | 'dna' | 'simulation' | 'coaching';
 
 // 월 이동 헬퍼
 function getMonthLabel(year: number, month: number): string {
@@ -46,6 +49,9 @@ const chartTabs: { id: ChartTab; label: string }[] = [
   { id: 'bar', label: '막대' },
   { id: 'line', label: '라인' },
   { id: 'calendar', label: '캘린더' },
+  { id: 'dna', label: 'DNA' },
+  { id: 'simulation', label: '시뮬레이션' },
+  { id: 'coaching', label: 'AI코칭' },
 ];
 
 // 카테고리별 거래 포함 데이터 타입
@@ -254,14 +260,14 @@ export default function ReportPage() {
         <div className="md:grid md:grid-cols-2 md:gap-4 space-y-4 md:space-y-0">
         {/* 차트 영역 — 탭 전환 */}
         <section className="glass-card overflow-hidden">
-          {/* 탭 헤더 */}
-          <div className="flex border-b border-gray-100">
+          {/* 탭 헤더 — 7개 탭 스크롤 대응 */}
+          <div className="flex overflow-x-auto whitespace-nowrap border-b border-gray-100">
             {chartTabs.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                className={`flex-none px-4 py-3 text-sm font-medium transition-colors ${
                   activeTab === tab.id
                     ? 'text-[#3182F6] border-b-2 border-[#3182F6]'
                     : 'text-gray-400 hover:text-gray-600'
@@ -285,6 +291,15 @@ export default function ReportPage() {
             )}
             {activeTab === 'calendar' && (
               <CalendarView year={year} month={month} />
+            )}
+            {activeTab === 'dna' && (
+              <SpendingDNAChart year={year} month={month} />
+            )}
+            {activeTab === 'simulation' && (
+              <SimulationChart year={year} month={month} />
+            )}
+            {activeTab === 'coaching' && (
+              <CoachingLetter year={year} month={month} />
             )}
           </div>
         </section>
