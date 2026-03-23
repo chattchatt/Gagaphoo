@@ -189,8 +189,8 @@ export default function IncomeSettingsPage() {
                   aria-label={income.isActive ? '비활성화' : '활성화'}
                 >
                   <span
-                    className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all ${
-                      income.isActive ? 'left-[calc(100%-1.375rem)]' : 'left-0.5'
+                    className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-sm transition-all ${
+                      income.isActive ? 'left-[calc(100%-1.5rem)]' : 'left-1'
                     }`}
                   />
                 </button>

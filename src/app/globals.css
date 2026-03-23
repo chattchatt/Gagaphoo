@@ -110,14 +110,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* 앱 배경 — 진한 그라데이션으로 글래스 효과 극대화 */
+/* 앱 배경 — 블루 중심 그라데이션 (색상 통일) */
 .glass-gradient-bg {
   background:
-    radial-gradient(ellipse at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 100% 0%, rgba(49, 130, 246, 0.18) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 100%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 50%, rgba(236, 72, 153, 0.06) 0%, transparent 40%),
-    linear-gradient(135deg, #eef2ff 0%, #e0f2fe 30%, #f0e7fe 60%, #fce7f3 100%);
+    radial-gradient(ellipse at 0% 0%, rgba(49, 130, 246, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 0%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(99, 102, 241, 0.06) 0%, transparent 50%),
+    linear-gradient(160deg, #eef2ff 0%, #e8f0fe 40%, #eef2ff 70%, #e0ecfc 100%);
 }
 
 .dark .glass-gradient-bg {
@@ -136,6 +135,14 @@ body {
   border: 1px solid var(--glass-border);
   border-radius: 1rem;
   box-shadow: var(--glass-shadow), var(--glass-shadow-inset);
+  transition: background 0.2s ease, backdrop-filter 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-card:hover {
+  background: var(--glass-bg-heavy);
+  backdrop-filter: blur(8px) saturate(200%);
+  -webkit-backdrop-filter: blur(8px) saturate(200%);
+  box-shadow: 0 12px 40px rgba(31, 38, 135, 0.2), var(--glass-shadow-inset);
 }
 
 /* 강화 글래스 — 입력 폼, 모달, 바텀시트 (가독성 우선) */

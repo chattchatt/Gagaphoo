@@ -32,7 +32,7 @@ export default function RootLayout({
         <Sidebar />
 
         {/* 메인 콘텐츠 영역 — 데스크톱은 사이드바(w-64) 만큼 왼쪽 여백, 모바일은 없음 */}
-        <main className="md:pl-64 min-h-full pb-16 md:pb-0">
+        <main className="md:pl-[17.5rem] min-h-full pb-16 md:pb-0">
           {children}
         </main>
 
