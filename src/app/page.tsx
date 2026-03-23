@@ -344,6 +344,8 @@ export default function HomePage() {
           </button>
         </div>
 
+        {/* 태블릿 2-column: 요약 카드 + 오늘 지출 */}
+        <div className="md:grid md:grid-cols-2 md:gap-4 space-y-4 md:space-y-0">
         {/* 월별 총 지출 요약 카드 */}
         <section className="glass-card p-5">
           <p className="text-sm text-gray-500 mb-1">{getMonthLabel(viewMonth)} 총 지출</p>
@@ -431,7 +433,7 @@ export default function HomePage() {
                 </p>
               </div>
             ) : (
-              <ul className="divide-y divide-gray-50">
+              <ul className="divide-y divide-white/10">
                 {todayTransactions.map((tx: Transaction) => {
                   const cat: Category | undefined = categoryMap.get(tx.categoryId);
                   return (
@@ -465,12 +467,12 @@ export default function HomePage() {
         {isCurrentMonth && todayIncomes.length > 0 && (
           <section className="glass-card overflow-hidden">
             <div className="flex items-center justify-between px-5 pt-4 pb-2">
-              <h2 className="text-sm font-semibold text-gray-700">오늘 수입</h2>
+              <h2 className="fluid-body font-semibold text-gray-700">오늘 수입</h2>
               <span className="text-sm font-bold text-[#3182F6]">
                 +{formatCurrency(todayIncomes.reduce((s, t) => s + t.amount, 0))}
               </span>
             </div>
-            <ul className="divide-y divide-gray-50">
+            <ul className="divide-y divide-white/10">
               {todayIncomes.map((tx: Transaction) => {
                 const cat: Category | undefined = categoryMap.get(tx.categoryId);
                 return (
@@ -497,6 +499,7 @@ export default function HomePage() {
             </ul>
           </section>
         )}
+        </div>{/* 태블릿 2-column 끝 */}
 
         {/* 날짜별 거래 내역 — 해당 월의 지출+수입을 날짜별 그룹핑 */}
         {(() => {
@@ -540,7 +543,7 @@ export default function HomePage() {
             return (
               <section key={date} className="glass-card overflow-hidden">
                 <div className="flex items-center justify-between px-5 pt-4 pb-2">
-                  <h2 className="text-sm font-semibold text-gray-700">{dateLabel}</h2>
+                  <h2 className="fluid-body font-semibold text-gray-700">{dateLabel}</h2>
                   {/* 수입/지출 혼합 시 순수익 표시, 지출만 있으면 지출액 표시 */}
                   <span className={`text-sm font-bold ${dayNet >= 0 ? 'text-[#3182F6]' : 'text-gray-500'}`}>
                     {dayNet >= 0
@@ -548,7 +551,7 @@ export default function HomePage() {
                       : formatCurrency(dayExpense)}
                   </span>
                 </div>
-                <ul className="divide-y divide-gray-50">
+                <ul className="divide-y divide-white/10">
                   {txs.map((tx: Transaction) => {
                     const cat: Category | undefined = categoryMap.get(tx.categoryId);
                     const isIncome = tx.type === 'income';
@@ -583,7 +586,7 @@ export default function HomePage() {
         {upcomingRecurring.length > 0 && (
           <section className="glass-card overflow-hidden">
             <div className="flex items-center justify-between px-5 pt-4 pb-2">
-              <h2 className="text-sm font-semibold text-gray-700">다가오는 반복 지출</h2>
+              <h2 className="fluid-body font-semibold text-gray-700">다가오는 반복 지출</h2>
               <Link
                 href="/settings/recurring"
                 className="text-xs text-[#3182F6] hover:underline"

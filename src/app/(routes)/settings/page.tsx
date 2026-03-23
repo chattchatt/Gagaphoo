@@ -62,7 +62,7 @@ export default function SettingsPage() {
     <div className="min-h-screen pb-20 md:pb-6">
       {/* 상단 헤더 */}
       <div className="glass-header px-5 pt-6 pb-4">
-        <h1 className="text-xl font-bold text-gray-900">설정</h1>
+        <h1 className="fluid-heading text-gray-900">설정</h1>
       </div>
 
       <div className="px-4 py-4 space-y-5 max-w-2xl mx-auto">

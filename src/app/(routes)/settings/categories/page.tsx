@@ -239,14 +239,14 @@ export default function CategoriesPage() {
         <button
           type="button"
           onClick={() => router.back()}
-          className="text-gray-500 hover:text-gray-700 p-1 -ml-1"
+          className="text-gray-500 hover:text-gray-700 touch-target -ml-1"
           aria-label="뒤로가기"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5M5 12l7-7M5 12l7 7" />
           </svg>
         </button>
-        <h1 className="text-xl font-bold text-gray-900">카테고리 관리</h1>
+        <h1 className="fluid-heading text-gray-900">카테고리 관리</h1>
       </div>
 
       <div className="px-4 py-4 space-y-3 max-w-lg mx-auto">

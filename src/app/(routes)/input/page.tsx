@@ -391,7 +391,7 @@ export default function InputPage() {
           type="button"
           onClick={handleSave}
           disabled={!isValid || saving}
-          className={`w-full py-4 rounded-2xl text-base font-semibold transition-all ${
+          className={`w-full py-4 capsule text-base font-semibold transition-all ${
             isValid && !saving
               ? 'bg-[#3182F6] text-white hover:bg-[#1B64DA] active:scale-[0.98]'
               : 'bg-gray-100 text-gray-300 cursor-not-allowed'

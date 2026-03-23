@@ -394,14 +394,14 @@ export default function RecurringSettingsPage() {
         <button
           type="button"
           onClick={() => router.back()}
-          className="text-gray-500 hover:text-gray-700 p-1 -ml-1"
+          className="text-gray-500 hover:text-gray-700 touch-target -ml-1"
           aria-label="뒤로가기"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5M5 12l7-7M5 12l7 7" />
           </svg>
         </button>
-        <h1 className="text-xl font-bold text-gray-900 flex-1">반복 지출</h1>
+        <h1 className="fluid-heading text-gray-900 flex-1">반복 지출</h1>
         {/* 추가 버튼 */}
         <button
           type="button"
@@ -431,7 +431,7 @@ export default function RecurringSettingsPage() {
             </button>
           </div>
         ) : (
-          <section className="glass-card overflow-hidden divide-y divide-gray-50">
+          <section className="glass-card overflow-hidden divide-y divide-white/10">
             {items.map((item) => {
               const cat = categoryMap.get(item.categoryId);
               return (

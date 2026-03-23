@@ -69,7 +69,7 @@ export default function SearchPage() {
     <div className="min-h-screen pb-20 md:pb-6">
       {/* 상단 검색 헤더 */}
       <div className="glass-header px-5 pt-6 pb-4 sticky top-0 z-10">
-        <h1 className="text-xl font-bold text-gray-900 mb-3">검색</h1>
+        <h1 className="fluid-heading text-gray-900 mb-3">검색</h1>
         <div className="relative">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -88,7 +88,7 @@ export default function SearchPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="메모로 검색"
-            className="w-full pl-9 pr-4 py-2.5 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#3182F6]"
+            className="w-full pl-9 pr-4 py-2.5 min-h-[44px] bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#3182F6]"
             autoFocus
           />
           {query && (
@@ -131,7 +131,7 @@ export default function SearchPage() {
                 {transactions.length}건
               </span>
             </div>
-            <ul className="divide-y divide-gray-50">
+            <ul className="divide-y divide-white/10">
               {transactions.map((tx) => {
                 const cat = categoryMap.get(tx.categoryId);
                 return (
