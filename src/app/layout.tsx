@@ -15,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className="h-full">
+    <html lang="ko" className="h-full" suppressHydrationWarning>
       {/* 다크모드 플래시 방지: 페이지 렌더 전에 localStorage 값 읽어 html에 dark 클래스 적용 */}
       <head>
         <script
