@@ -12,8 +12,12 @@ import SpendingDNAChart from '@/components/charts/SpendingDNAChart';
 import SimulationChart from '@/components/charts/SimulationChart';
 import CoachingLetter from '@/components/charts/CoachingLetter';
 
+// 대분류 세그먼트
+type SegmentGroup = 'chart' | 'insight';
+
 // 차트 탭 타입
-type ChartTab = 'pie' | 'bar' | 'line' | 'calendar' | 'dna' | 'simulation' | 'coaching';
+type ChartTab = 'pie' | 'bar' | 'line' | 'calendar';
+type InsightTab = 'dna' | 'simulation' | 'coaching';
 
 // 월 이동 헬퍼
 function getMonthLabel(year: number, month: number): string {
@@ -44,11 +48,14 @@ function getRecentMonths(year: number, month: number, count: number): string[] {
   return result; // 최신 → 오래된 순
 }
 
-const chartTabs: { id: ChartTab; label: string }[] = [
+const chartSubTabs: { id: ChartTab; label: string }[] = [
   { id: 'pie', label: '파이' },
   { id: 'bar', label: '막대' },
   { id: 'line', label: '라인' },
   { id: 'calendar', label: '캘린더' },
+];
+
+const insightSubTabs: { id: InsightTab; label: string }[] = [
   { id: 'dna', label: 'DNA' },
   { id: 'simulation', label: '시뮬레이션' },
   { id: 'coaching', label: 'AI코칭' },
@@ -68,7 +75,9 @@ export default function ReportPage() {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
-  const [activeTab, setActiveTab] = useState<ChartTab>('pie');
+  const [segment, setSegment] = useState<SegmentGroup>('chart');
+  const [activeChartTab, setActiveChartTab] = useState<ChartTab>('pie');
+  const [activeInsightTab, setActiveInsightTab] = useState<InsightTab>('dna');
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
   const currentMonthKey = toMonthKey(year, month);
@@ -259,46 +268,89 @@ export default function ReportPage() {
         {/* 태블릿 2-column: 차트 + 카테고리 목록 */}
         <div className="md:grid md:grid-cols-2 md:gap-4 space-y-4 md:space-y-0">
         {/* 차트 영역 — 탭 전환 */}
+        {/* 1단: 대분류 세그먼트 컨트롤 */}
+        <div className="glass-card p-1 flex">
+          <button
+            type="button"
+            onClick={() => setSegment('chart')}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              segment === 'chart'
+                ? 'bg-white/40 text-gray-900 shadow-sm backdrop-blur-sm'
+                : 'text-gray-400'
+            }`}
+          >
+            차트
+          </button>
+          <button
+            type="button"
+            onClick={() => setSegment('insight')}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              segment === 'insight'
+                ? 'bg-white/40 text-gray-900 shadow-sm backdrop-blur-sm'
+                : 'text-gray-400'
+            }`}
+          >
+            인사이트
+          </button>
+        </div>
+
         <section className="glass-card overflow-hidden">
-          {/* 탭 헤더 — 7개 탭 스크롤 대응 */}
-          <div className="flex overflow-x-auto whitespace-nowrap border-b border-gray-100">
-            {chartTabs.map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex-none px-4 py-3 text-sm font-medium transition-colors ${
-                  activeTab === tab.id
-                    ? 'text-[#3182F6] border-b-2 border-[#3182F6]'
-                    : 'text-gray-400 hover:text-gray-600'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+          {/* 2단: 하위 탭 */}
+          <div className="flex border-b border-white/10">
+            {segment === 'chart'
+              ? chartSubTabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveChartTab(tab.id)}
+                    className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                      activeChartTab === tab.id
+                        ? 'text-[#3182F6] border-b-2 border-[#3182F6]'
+                        : 'text-gray-400 hover:text-gray-600'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))
+              : insightSubTabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveInsightTab(tab.id)}
+                    className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                      activeInsightTab === tab.id
+                        ? 'text-[#3182F6] border-b-2 border-[#3182F6]'
+                        : 'text-gray-400 hover:text-gray-600'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
           </div>
 
-          {/* 실제 차트 컴포넌트 */}
+          {/* 콘텐츠 영역 */}
           <div className="p-4">
-            {activeTab === 'pie' && (
+            {/* 차트 그룹 */}
+            {segment === 'chart' && activeChartTab === 'pie' && (
               <CategoryPieChart data={chartCategoryData} />
             )}
-            {activeTab === 'bar' && (
+            {segment === 'chart' && activeChartTab === 'bar' && (
               <MonthlyBarChart data={trendData} currentMonth={currentMonthKey} />
             )}
-            {activeTab === 'line' && (
+            {segment === 'chart' && activeChartTab === 'line' && (
               <TrendLineChart data={trendData} />
             )}
-            {activeTab === 'calendar' && (
+            {segment === 'chart' && activeChartTab === 'calendar' && (
               <CalendarView year={year} month={month} />
             )}
-            {activeTab === 'dna' && (
+            {/* 인사이트 그룹 */}
+            {segment === 'insight' && activeInsightTab === 'dna' && (
               <SpendingDNAChart year={year} month={month} />
             )}
-            {activeTab === 'simulation' && (
+            {segment === 'insight' && activeInsightTab === 'simulation' && (
               <SimulationChart year={year} month={month} />
             )}
-            {activeTab === 'coaching' && (
+            {segment === 'insight' && activeInsightTab === 'coaching' && (
               <CoachingLetter year={year} month={month} />
             )}
           </div>
