@@ -24,6 +24,7 @@ export default function TransactionDetail({
   // 편집 상태값
   const [editAmount, setEditAmount] = useState('');
   const [editMemo, setEditMemo] = useState('');
+  const [editDate, setEditDate] = useState('');
   const [editCategoryId, setEditCategoryId] = useState<number>(0);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -40,6 +41,7 @@ export default function TransactionDetail({
   function handleStartEdit() {
     setEditAmount(String(transaction!.amount));
     setEditMemo(transaction!.memo);
+    setEditDate(transaction!.date);
     setEditCategoryId(transaction!.categoryId);
     setIsEditing(true);
   }
@@ -62,6 +64,7 @@ export default function TransactionDetail({
         amount,
         memo: editMemo.trim(),
         categoryId: editCategoryId,
+        date: editDate,
         userModified: true,
       });
       setIsEditing(false);
@@ -90,7 +93,7 @@ export default function TransactionDetail({
       />
 
       {/* 바텀시트 — 하단에서 슬라이드업 */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-xl max-w-2xl mx-auto animate-slide-up">
+      <div className="fixed bottom-0 left-0 right-0 z-50 glass-card-heavy rounded-t-2xl rounded-b-none shadow-xl max-w-2xl mx-auto animate-slide-up">
         {/* 핸들 바 */}
         <div className="flex justify-center pt-3 pb-1">
           <div className="w-10 h-1 bg-gray-200 rounded-full" />
@@ -149,6 +152,17 @@ export default function TransactionDetail({
                   className="w-full border border-gray-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-[#3182F6]"
                   placeholder="메모 입력"
                   maxLength={100}
+                />
+              </div>
+
+              {/* 날짜 */}
+              <div>
+                <label className="text-xs text-gray-500 mb-1 block">날짜</label>
+                <input
+                  type="date"
+                  value={editDate}
+                  onChange={(e) => setEditDate(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-[#3182F6]"
                 />
               </div>
 

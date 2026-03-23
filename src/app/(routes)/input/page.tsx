@@ -242,26 +242,25 @@ export default function InputPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
+    <div className="min-h-screen pb-20 md:pb-6">
       {/* 토스트 */}
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
 
-      {/* 상단 헤더 */}
-      <div className="bg-white px-5 pt-6 pb-4 border-b border-gray-100 flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="text-gray-500 hover:text-gray-700 p-1 -ml-1"
-          aria-label="뒤로가기"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M5 12l7-7M5 12l7 7" />
-          </svg>
-        </button>
-        <h1 className="text-xl font-bold text-gray-900">내역 입력</h1>
-      </div>
-
-      <div className="px-4 py-6 space-y-4 max-w-lg mx-auto">
+      <div className="px-4 pt-6 pb-6 space-y-4 max-w-lg mx-auto md:pt-8">
+        {/* 뒤로가기 + 인라인 타이틀 */}
+        <div className="flex items-center gap-2 mb-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="text-gray-400 hover:text-gray-600 touch-target -ml-2"
+            aria-label="뒤로가기"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <h1 className="fluid-heading font-bold text-gray-900">내역 입력</h1>
+        </div>
         {/* 수입/지출 세그먼트 컨트롤 */}
         <div className="bg-gray-100 rounded-2xl p-1 flex">
           <button
@@ -289,7 +288,7 @@ export default function InputPage() {
         </div>
 
         {/* 금액 입력 */}
-        <section className="bg-white rounded-2xl p-5 shadow-sm">
+        <section className="glass-card-heavy p-5">
           <label className="block text-sm text-gray-500 mb-2">금액</label>
           <div className="flex items-center gap-2">
             <span className="text-3xl font-bold text-gray-400">₩</span>
@@ -300,7 +299,7 @@ export default function InputPage() {
               placeholder="0"
               value={displayAmount}
               onChange={handleAmountChange}
-              className="flex-1 text-4xl font-bold text-gray-900 bg-transparent outline-none placeholder:text-gray-200 min-w-0"
+              className="flex-1 fluid-amount font-bold text-gray-900 bg-transparent outline-none placeholder:text-gray-200 min-w-0"
             />
           </div>
           {parsedAmount > 0 && (
@@ -309,7 +308,7 @@ export default function InputPage() {
         </section>
 
         {/* 메모 입력 */}
-        <section className="bg-white rounded-2xl p-5 shadow-sm">
+        <section className="glass-card-heavy p-5">
           <label className="block text-sm text-gray-500 mb-2">메모</label>
           <input
             type="text"
@@ -323,7 +322,7 @@ export default function InputPage() {
         </section>
 
         {/* 날짜 선택 */}
-        <section className="bg-white rounded-2xl p-5 shadow-sm">
+        <section className="glass-card-heavy p-5">
           <label className="block text-sm text-gray-500 mb-2">날짜</label>
           <input
             type="date"
@@ -335,7 +334,7 @@ export default function InputPage() {
         </section>
 
         {/* 카테고리 선택 */}
-        <section className="bg-white rounded-2xl p-5 shadow-sm">
+        <section className="glass-card-heavy p-5">
           <div className="flex items-center justify-between mb-3">
             <label className="block text-sm text-gray-500">카테고리</label>
             {aiLoading && (
@@ -360,7 +359,7 @@ export default function InputPage() {
                   key={cat.id}
                   type="button"
                   onClick={() => handleCategorySelect(cat.id)}
-                  className={`relative flex flex-col items-center gap-1 py-3 rounded-xl border-2 transition-all ${
+                  className={`relative flex flex-col items-center gap-1 py-3.5 min-h-[44px] rounded-xl border-2 transition-all ${
                     isSelected
                       ? 'border-[#3182F6] bg-[#EBF5FF]'
                       : 'border-transparent bg-gray-50 hover:bg-gray-100'
@@ -391,7 +390,7 @@ export default function InputPage() {
           type="button"
           onClick={handleSave}
           disabled={!isValid || saving}
-          className={`w-full py-4 rounded-2xl text-base font-semibold transition-all ${
+          className={`w-full py-4 capsule text-base font-semibold transition-all ${
             isValid && !saving
               ? 'bg-[#3182F6] text-white hover:bg-[#1B64DA] active:scale-[0.98]'
               : 'bg-gray-100 text-gray-300 cursor-not-allowed'

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLiveQuery } from 'dexie-react-hooks';
+import DragToggle from '@/components/DragToggle';
 import { db, type RecurringExpense, type Category } from '@/lib/db';
 import { initializeDB } from '@/lib/seed';
 import { addRecurring, updateRecurring, deleteRecurring } from '@/lib/recurring';
@@ -131,7 +132,7 @@ function RecurringModal({
       className="fixed inset-0 z-40 flex items-end justify-center bg-black/40"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="w-full max-w-lg bg-white rounded-t-3xl px-5 pt-5 pb-8 space-y-4">
+      <div className="w-full max-w-lg glass-card-heavy rounded-t-3xl rounded-b-none px-5 pt-5 pb-8 space-y-4">
         {/* 헤더 */}
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold text-gray-900">
@@ -157,7 +158,7 @@ function RecurringModal({
             placeholder="예: 넷플릭스 구독"
             value={form.memo}
             onChange={(e) => setForm((f) => ({ ...f, memo: e.target.value }))}
-            className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#3182F6] transition-colors"
+            className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 bg-white outline-none focus:border-[#3182F6] transition-colors"
           />
           {errors.memo && <p className="mt-1 text-xs text-red-500">{errors.memo}</p>}
         </div>
@@ -265,21 +266,11 @@ function RecurringModal({
         {editing && (
           <div className="flex items-center justify-between py-1">
             <span className="text-sm font-medium text-gray-700">활성화</span>
-            <button
-              type="button"
-              onClick={() => setForm((f) => ({ ...f, isActive: !f.isActive }))}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                form.isActive ? 'bg-[#3182F6]' : 'bg-gray-300'
-              }`}
-              aria-checked={form.isActive}
-              role="switch"
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                  form.isActive ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
+            <DragToggle
+              checked={form.isActive}
+              onChange={(v) => setForm((f) => ({ ...f, isActive: v }))}
+              label="활성화"
+            />
           </div>
         )}
 
@@ -350,7 +341,7 @@ export default function RecurringSettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
+    <div className="min-h-screen pb-20 md:pb-6">
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
 
       {/* 모달 */}
@@ -366,7 +357,7 @@ export default function RecurringSettingsPage() {
       {/* 삭제 확인 다이얼로그 */}
       {deleteConfirm !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl px-6 py-5 mx-4 max-w-sm w-full shadow-xl space-y-4">
+          <div className="glass-card-heavy px-6 py-5 mx-4 max-w-sm w-full shadow-xl space-y-4">
             <p className="text-sm font-medium text-gray-900 text-center">이 반복 지출을 삭제할까요?</p>
             <p className="text-xs text-gray-400 text-center">삭제해도 이미 기록된 거래 내역은 유지됩니다.</p>
             <div className="flex gap-2">
@@ -389,33 +380,31 @@ export default function RecurringSettingsPage() {
         </div>
       )}
 
-      {/* 상단 헤더 */}
-      <div className="bg-white px-5 pt-6 pb-4 border-b border-gray-100 flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="text-gray-500 hover:text-gray-700 p-1 -ml-1"
-          aria-label="뒤로가기"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M5 12l7-7M5 12l7 7" />
-          </svg>
-        </button>
-        <h1 className="text-xl font-bold text-gray-900 flex-1">반복 지출</h1>
-        {/* 추가 버튼 */}
-        <button
-          type="button"
-          onClick={() => { setEditing(null); setModalOpen(true); }}
-          className="flex items-center gap-1.5 bg-[#3182F6] text-white text-sm font-medium px-3 py-1.5 rounded-full hover:bg-[#1B64DA] transition-colors"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 5v14M5 12h14" />
-          </svg>
-          추가
-        </button>
-      </div>
-
-      <div className="px-4 py-4 max-w-lg mx-auto space-y-3">
+      <div className="px-4 pt-6 pb-4 md:pt-8 max-w-lg mx-auto space-y-3">
+        {/* 뒤로가기 + 타이틀 + 추가 버튼 */}
+        <div className="flex items-center gap-2 mb-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="text-gray-400 hover:text-gray-600 touch-target -ml-2"
+            aria-label="뒤로가기"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <h1 className="fluid-heading font-bold text-gray-900 flex-1">반복 지출</h1>
+          <button
+            type="button"
+            onClick={() => { setEditing(null); setModalOpen(true); }}
+            className="flex items-center gap-1.5 bg-[#3182F6] text-white text-sm font-medium px-3 py-1.5 rounded-full hover:bg-[#1B64DA] transition-colors"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            추가
+          </button>
+        </div>
         {!items ? (
           <div className="py-10 text-center text-sm text-gray-400">불러오는 중...</div>
         ) : items.length === 0 ? (
@@ -431,7 +420,7 @@ export default function RecurringSettingsPage() {
             </button>
           </div>
         ) : (
-          <section className="bg-white rounded-2xl shadow-sm overflow-hidden divide-y divide-gray-50">
+          <section className="glass-card overflow-hidden divide-y divide-white/10">
             {items.map((item) => {
               const cat = categoryMap.get(item.categoryId);
               return (
@@ -453,28 +442,17 @@ export default function RecurringSettingsPage() {
                   </div>
 
                   {/* 활성 토글 */}
-                  <button
-                    type="button"
-                    onClick={() => handleToggleActive(item)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ${
-                      item.isActive ? 'bg-[#3182F6]' : 'bg-gray-300'
-                    }`}
-                    aria-checked={item.isActive}
-                    role="switch"
-                    aria-label={item.isActive ? '비활성화' : '활성화'}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                        item.isActive ? 'translate-x-6' : 'translate-x-1'
-                      }`}
-                    />
-                  </button>
+                  <DragToggle
+                    checked={item.isActive}
+                    onChange={() => handleToggleActive(item)}
+                    label={item.isActive ? '비활성화' : '활성화'}
+                  />
 
                   {/* 수정 버튼 */}
                   <button
                     type="button"
                     onClick={() => { setEditing(item); setModalOpen(true); }}
-                    className="p-1.5 text-gray-400 hover:text-gray-700 flex-shrink-0"
+                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:text-gray-700 flex-shrink-0"
                     aria-label="수정"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -487,7 +465,7 @@ export default function RecurringSettingsPage() {
                   <button
                     type="button"
                     onClick={() => setDeleteConfirm(item.id)}
-                    className="p-1.5 text-gray-400 hover:text-red-500 flex-shrink-0"
+                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:text-red-500 flex-shrink-0"
                     aria-label="삭제"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

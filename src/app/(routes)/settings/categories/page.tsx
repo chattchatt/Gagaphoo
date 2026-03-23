@@ -86,7 +86,7 @@ function CategoryModal({
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-end md:items-center justify-center" onClick={onClose}>
       <div
-        className="bg-white w-full max-w-lg rounded-t-2xl md:rounded-2xl p-5 space-y-4 max-h-[85vh] overflow-y-auto"
+        className="glass-card-heavy w-full max-w-lg rounded-t-2xl md:rounded-2xl p-5 space-y-4 max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-bold text-gray-900">
@@ -231,27 +231,26 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
+    <div className="min-h-screen pb-20 md:pb-6">
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
 
-      {/* 상단 헤더 */}
-      <div className="bg-white px-5 pt-6 pb-4 border-b border-gray-100 flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="text-gray-500 hover:text-gray-700 p-1 -ml-1"
-          aria-label="뒤로가기"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M5 12l7-7M5 12l7 7" />
-          </svg>
-        </button>
-        <h1 className="text-xl font-bold text-gray-900">카테고리 관리</h1>
-      </div>
-
-      <div className="px-4 py-4 space-y-3 max-w-lg mx-auto">
+      <div className="px-4 pt-6 pb-4 space-y-3 max-w-lg mx-auto md:pt-8">
+        {/* 뒤로가기 + 인라인 타이틀 */}
+        <div className="flex items-center gap-2 mb-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="text-gray-400 hover:text-gray-600 touch-target -ml-2"
+            aria-label="뒤로가기"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <h1 className="fluid-heading font-bold text-gray-900">카테고리 관리</h1>
+        </div>
         {/* 카테고리 목록 */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden divide-y divide-gray-50">
+        <div className="glass-card overflow-hidden divide-y divide-white/10">
           {categories.map((cat) => (
             <div key={cat.id} className="flex items-center gap-3 px-5 py-3">
               <span
@@ -314,7 +313,7 @@ export default function CategoriesPage() {
       {/* 삭제 확인 모달 */}
       {confirmDelete && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setConfirmDelete(null)}>
-          <div className="bg-white rounded-2xl p-5 mx-4 max-w-sm w-full space-y-4" onClick={(e) => e.stopPropagation()}>
+          <div className="glass-card-heavy p-5 mx-4 max-w-sm w-full space-y-4" onClick={(e) => e.stopPropagation()}>
             <p className="text-sm text-gray-900 text-center">
               <span className="text-xl">{confirmDelete.icon}</span>{' '}
               <span className="font-semibold">{confirmDelete.name}</span> 카테고리를 삭제할까요?

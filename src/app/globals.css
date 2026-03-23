@@ -48,19 +48,58 @@
   --text-primary: #191F28;
   --text-secondary: #6B7684;
   --text-tertiary: #B0B8C1;
+
+  /* Liquid Glass 토큰 (Apple + Linear 참고) */
+  --glass-bg: rgba(255, 255, 255, 0.2);
+  --glass-bg-heavy: rgba(255, 255, 255, 0.35);
+  --glass-bg-nav: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-border-strong: rgba(255, 255, 255, 0.8);
+  --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  --glass-shadow-inset: inset 0 4px 20px rgba(255, 255, 255, 0.3);
+
+  /* Fluid 타이포그래피 토큰 */
+  --text-heading: clamp(1.5rem, calc(1.2rem + 1.5vw), 2.25rem);
+  --text-subheading: clamp(1.125rem, calc(1rem + 0.5vw), 1.5rem);
+  --text-body: clamp(0.875rem, calc(0.8rem + 0.25vw), 1rem);
+  --text-caption: clamp(0.75rem, calc(0.7rem + 0.15vw), 0.875rem);
+  --text-amount: clamp(1.75rem, calc(1.5rem + 1vw), 2.5rem);
+
+  /* 8pt 그리드 간격 토큰 */
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-5: 2.5rem;
+  --space-6: 3rem;
+
+  /* Concentricity 형태 토큰 */
+  --radius-card: 1rem;
+  --radius-inner: 0.75rem;
+  --radius-button: 0.625rem;
+  --radius-capsule: 9999px;
 }
 
 /* 다크모드 변수 (.dark 클래스 전략) */
 .dark {
-  --background: #191F28;
+  --background: #0f1319;
   --foreground: #F9FAFB;
-  --surface: #333D4B;
-  --border: #4E5968;
-  --primary: #3182F6;
+  --surface: #1a2030;
+  --border: #2a3040;
+  --primary: #5ba0ff;
   --primary-hover: #CCE5FF;
   --text-primary: #F9FAFB;
   --text-secondary: #B0B8C1;
   --text-tertiary: #6B7684;
+
+  /* 다크 Liquid Glass 토큰 */
+  --glass-bg: rgba(15, 19, 25, 0.5);
+  --glass-bg-heavy: rgba(20, 26, 36, 0.65);
+  --glass-bg-nav: rgba(15, 19, 25, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-border-strong: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 body {
@@ -69,6 +108,196 @@ body {
   font-family: var(--font-pretendard);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* 앱 배경 — 블루 중심 그라데이션 (색상 통일) */
+.glass-gradient-bg {
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(49, 130, 246, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 0%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(99, 102, 241, 0.06) 0%, transparent 50%),
+    linear-gradient(160deg, #eef2ff 0%, #e8f0fe 40%, #eef2ff 70%, #e0ecfc 100%);
+}
+
+.dark .glass-gradient-bg {
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 0%, rgba(49, 130, 246, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
+    linear-gradient(135deg, #0f1319 0%, #111827 50%, #0f1319 100%);
+}
+
+/* Liquid Glass 카드 — saturate로 배경 색감 강조, inset shadow로 깊이감 */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(4px) saturate(180%);
+  -webkit-backdrop-filter: blur(4px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  box-shadow: var(--glass-shadow), var(--glass-shadow-inset);
+  transition: background 0.2s ease, backdrop-filter 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-card:hover {
+  background: var(--glass-bg-heavy);
+  backdrop-filter: blur(8px) saturate(200%);
+  -webkit-backdrop-filter: blur(8px) saturate(200%);
+  box-shadow: 0 12px 40px rgba(31, 38, 135, 0.2), var(--glass-shadow-inset);
+}
+
+/* 강화 글래스 — 입력 폼, 모달, 바텀시트 (가독성 우선) */
+.glass-card-heavy {
+  background: var(--glass-bg-heavy);
+  backdrop-filter: blur(8px) saturate(180%);
+  -webkit-backdrop-filter: blur(8px) saturate(180%);
+  border: 1px solid var(--glass-border-strong);
+  border-radius: 1rem;
+  box-shadow: var(--glass-shadow), var(--glass-shadow-inset);
+}
+
+/* 네비게이션 글래스 — 높은 opacity + 강한 blur로 항상 읽기 쉽게 */
+.glass-nav {
+  background: var(--glass-bg-nav);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-color: var(--glass-border);
+}
+
+/* 헤더 글래스 */
+.glass-header {
+  background: var(--glass-bg-nav);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+/* 글래스 오버레이 — 모달/바텀시트 배경 */
+.glass-overlay {
+  background: var(--glass-bg);
+  backdrop-filter: blur(4px) saturate(180%);
+  -webkit-backdrop-filter: blur(4px) saturate(180%);
+  border: 1px solid var(--glass-border);
+}
+
+/* ─── 다크모드 텍스트 색상 오버라이드 ─── */
+/* 라이트모드의 gray 텍스트를 다크 글래스 배경에서 읽을 수 있도록 반전 */
+.dark .text-gray-900 { color: #f3f4f6 !important; }
+.dark .text-gray-800 { color: #e5e7eb !important; }
+.dark .text-gray-700 { color: #d1d5db !important; }
+.dark .text-gray-600 { color: #b0b8c1 !important; }
+.dark .text-gray-500 { color: #9ca3af !important; }
+.dark .text-gray-400 { color: #8b95a1 !important; }
+.dark .text-gray-300 { color: #6b7684 !important; }
+
+/* 다크모드 배경 관련 오버라이드 */
+.dark .bg-gray-50 { background-color: rgba(255, 255, 255, 0.04) !important; }
+.dark .bg-gray-100 { background-color: rgba(255, 255, 255, 0.06) !important; }
+.dark .bg-gray-200 { background-color: rgba(255, 255, 255, 0.08) !important; }
+.dark .divide-gray-50 > :not(:last-child) { border-color: rgba(255, 255, 255, 0.06) !important; }
+.dark .divide-gray-100 > :not(:last-child) { border-color: rgba(255, 255, 255, 0.08) !important; }
+
+/* 다크모드 보더 오버라이드 */
+.dark .border-gray-100 { border-color: rgba(255, 255, 255, 0.06) !important; }
+.dark .border-gray-200 { border-color: rgba(255, 255, 255, 0.1) !important; }
+
+/* 다크모드 placeholder */
+.dark .placeholder\:text-gray-200::placeholder,
+.dark .placeholder\:text-gray-300::placeholder { color: #4e5968 !important; }
+
+/* 다크모드 경고/정보 배경 */
+.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.12) !important; }
+.dark .bg-orange-50 { background-color: rgba(249, 115, 22, 0.12) !important; }
+.dark .bg-blue-50 { background-color: rgba(49, 130, 246, 0.12) !important; }
+
+/* ─── 반응형: 모바일 vs 데스크톱 글래스 차등 적용 ─── */
+
+/* 모바일: blur 줄이고 opacity 높여 성능+가독성 확보 */
+@media (max-width: 767px) {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(2px) saturate(160%);
+    -webkit-backdrop-filter: blur(2px) saturate(160%);
+  }
+  .glass-card-heavy {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(4px) saturate(160%);
+    -webkit-backdrop-filter: blur(4px) saturate(160%);
+  }
+  .dark .glass-card {
+    background: rgba(15, 19, 25, 0.6);
+  }
+  .dark .glass-card-heavy {
+    background: rgba(20, 26, 36, 0.75);
+  }
+}
+
+/* 태블릿: 중간 수준 */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .glass-card {
+    backdrop-filter: blur(6px) saturate(180%);
+    -webkit-backdrop-filter: blur(6px) saturate(180%);
+  }
+  .dark .glass-card {
+    background: rgba(15, 19, 25, 0.55);
+  }
+  .dark .glass-card-heavy {
+    background: rgba(20, 26, 36, 0.7);
+  }
+}
+
+/* 데스크톱: 풀 이펙트 */
+@media (min-width: 1024px) {
+  .glass-card {
+    backdrop-filter: blur(8px) saturate(200%);
+    -webkit-backdrop-filter: blur(8px) saturate(200%);
+  }
+  .glass-card-heavy {
+    backdrop-filter: blur(12px) saturate(200%);
+    -webkit-backdrop-filter: blur(12px) saturate(200%);
+  }
+  .dark .glass-card {
+    background: rgba(15, 19, 25, 0.5);
+    backdrop-filter: blur(10px) saturate(200%);
+    -webkit-backdrop-filter: blur(10px) saturate(200%);
+  }
+  .dark .glass-card-heavy {
+    background: rgba(20, 26, 36, 0.65);
+    backdrop-filter: blur(14px) saturate(200%);
+    -webkit-backdrop-filter: blur(14px) saturate(200%);
+  }
+}
+
+/* ─── Fluid 타이포그래피 유틸리티 ─── */
+.fluid-heading { font-size: var(--text-heading); font-weight: 700; line-height: 1.2; }
+.fluid-subheading { font-size: var(--text-subheading); font-weight: 600; line-height: 1.3; }
+.fluid-body { font-size: var(--text-body); line-height: 1.5; }
+.fluid-caption { font-size: var(--text-caption); line-height: 1.4; }
+.fluid-amount { font-size: var(--text-amount); font-weight: 700; line-height: 1.1; }
+
+/* Capsule 형태 */
+.capsule { border-radius: var(--radius-capsule); }
+
+/* ─── Scroll Edge Effects ─── */
+@media (max-width: 767px) {
+  .scroll-edge-soft {
+    mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+  }
+}
+
+@media (min-width: 768px) {
+  .scroll-edge-hard {
+    border-bottom: 1px solid var(--glass-border);
+  }
+}
+
+/* 터치 타겟 최소 크기 */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* iOS safe area 하단 여백 지원 */

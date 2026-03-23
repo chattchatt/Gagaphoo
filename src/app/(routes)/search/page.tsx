@@ -66,10 +66,10 @@ export default function SearchPage() {
   const grouped = useMemo(() => groupByDate(searchResults), [searchResults]);
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
-      {/* 상단 검색 헤더 */}
-      <div className="bg-white px-5 pt-6 pb-4 border-b border-gray-100 sticky top-0 z-10">
-        <h1 className="text-xl font-bold text-gray-900 mb-3">검색</h1>
+    <div className="min-h-screen pb-20 md:pb-6">
+      <div className="px-4 pt-6 pb-4 md:px-6 md:pt-8 sticky top-0 z-10">
+        {/* 검색 헤더 */}
+        <h1 className="fluid-heading text-gray-900 mb-3">검색</h1>
         <div className="relative">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -88,7 +88,7 @@ export default function SearchPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="메모로 검색"
-            className="w-full pl-9 pr-4 py-2.5 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#3182F6]"
+            className="w-full pl-9 pr-4 py-2.5 min-h-[44px] bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#3182F6]"
             autoFocus
           />
           {query && (
@@ -124,14 +124,14 @@ export default function SearchPage() {
 
         {/* 검색 결과 — 날짜별 그룹 */}
         {grouped.map(({ date, transactions }) => (
-          <section key={date} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <section key={date} className="glass-card overflow-hidden">
             <div className="px-5 pt-4 pb-2 flex items-center justify-between">
               <span className="text-xs font-semibold text-gray-500">{formatDate(date)}</span>
               <span className="text-xs text-gray-400">
                 {transactions.length}건
               </span>
             </div>
-            <ul className="divide-y divide-gray-50">
+            <ul className="divide-y divide-white/10">
               {transactions.map((tx) => {
                 const cat = categoryMap.get(tx.categoryId);
                 return (

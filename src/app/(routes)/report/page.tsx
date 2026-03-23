@@ -7,9 +7,10 @@ import { formatCurrency } from '@/lib/format';
 import CategoryPieChart from '@/components/charts/CategoryPieChart';
 import MonthlyBarChart from '@/components/charts/MonthlyBarChart';
 import TrendLineChart from '@/components/charts/TrendLineChart';
+import CalendarView from '@/components/charts/CalendarView';
 
 // 차트 탭 타입
-type ChartTab = 'pie' | 'bar' | 'line';
+type ChartTab = 'pie' | 'bar' | 'line' | 'calendar';
 
 // 월 이동 헬퍼
 function getMonthLabel(year: number, month: number): string {
@@ -44,6 +45,7 @@ const chartTabs: { id: ChartTab; label: string }[] = [
   { id: 'pie', label: '파이' },
   { id: 'bar', label: '막대' },
   { id: 'line', label: '라인' },
+  { id: 'calendar', label: '캘린더' },
 ];
 
 // 카테고리별 거래 포함 데이터 타입
@@ -197,20 +199,18 @@ export default function ReportPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
-      {/* 상단 헤더 */}
-      <div className="bg-white px-5 pt-6 pb-4 border-b border-gray-100">
-        <h1 className="text-xl font-bold text-gray-900">지출 리포트</h1>
-      </div>
-
-      <div className="px-4 py-4 space-y-4 max-w-2xl mx-auto">
+    <div className="min-h-screen pb-20 md:pb-6">
+      <div className="px-4 pt-8 pb-4 md:px-6 md:pt-10 space-y-4 max-w-2xl mx-auto">
+        <div className="px-1">
+          <h1 className="fluid-heading font-bold text-gray-900">지출 리포트</h1>
+        </div>
         {/* 월 선택기 */}
-        <section className="bg-white rounded-2xl p-4 shadow-sm">
+        <section className="glass-card p-4">
           <div className="flex items-center justify-between">
             <button
               type="button"
               onClick={goToPrevMonth}
-              className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-500"
+              className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-500"
               aria-label="이전 달"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
@@ -223,7 +223,7 @@ export default function ReportPage() {
             <button
               type="button"
               onClick={goToNextMonth}
-              className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-500"
+              className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-500"
               aria-label="다음 달"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
@@ -234,9 +234,9 @@ export default function ReportPage() {
         </section>
 
         {/* 총 지출 요약 + 전월 대비 증감 */}
-        <section className="bg-white rounded-2xl p-5 shadow-sm">
+        <section className="glass-card-heavy p-5">
           <p className="text-sm text-gray-500 mb-1">총 지출</p>
-          <p className="text-3xl font-bold text-gray-900">
+          <p className="fluid-amount font-bold text-gray-900">
             {formatCurrency(totalExpense)}
           </p>
           {/* 전월 대비 증감 표시 — 데이터가 있을 때만 */}
@@ -250,8 +250,10 @@ export default function ReportPage() {
           )}
         </section>
 
+        {/* 태블릿 2-column: 차트 + 카테고리 목록 */}
+        <div className="md:grid md:grid-cols-2 md:gap-4 space-y-4 md:space-y-0">
         {/* 차트 영역 — 탭 전환 */}
-        <section className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <section className="glass-card overflow-hidden">
           {/* 탭 헤더 */}
           <div className="flex border-b border-gray-100">
             {chartTabs.map((tab) => (
@@ -281,11 +283,14 @@ export default function ReportPage() {
             {activeTab === 'line' && (
               <TrendLineChart data={trendData} />
             )}
+            {activeTab === 'calendar' && (
+              <CalendarView year={year} month={month} />
+            )}
           </div>
         </section>
 
         {/* 카테고리별 지출 목록 (아코디언) */}
-        <section className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <section className="glass-card overflow-hidden">
           <h2 className="px-5 pt-4 pb-2 text-sm font-semibold text-gray-700">
             카테고리별 지출
           </h2>
@@ -361,6 +366,7 @@ export default function ReportPage() {
             </ul>
           )}
         </section>
+        </div>{/* 태블릿 2-column 끝 */}
       </div>
     </div>
   );

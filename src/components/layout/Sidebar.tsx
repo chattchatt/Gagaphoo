@@ -49,9 +49,9 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex flex-col w-64 min-h-screen bg-white border-r border-gray-200 fixed left-0 top-0 z-40">
+    <aside className="hidden md:flex flex-col w-64 h-[calc(100vh-1rem)] glass-nav fixed left-0 top-0 z-40 m-2 rounded-2xl">
       {/* 앱 로고 영역 */}
-      <div className="flex items-center h-16 px-6 border-b border-gray-200">
+      <div className="flex items-center h-16 px-6 mb-2">
         <span className="text-xl font-bold text-[#3182F6]">GaGapHoo</span>
         <span className="ml-1 text-sm text-gray-400">가계부</span>
       </div>
@@ -67,10 +67,10 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
+              className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-colors ${
                 isActive
-                  ? 'bg-[#EBF5FF] text-[#3182F6] font-medium'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-white/15 backdrop-blur-sm border border-white/20 text-[#3182F6] font-medium'
+                  : 'text-gray-600 hover:bg-white/10 hover:text-gray-900'
               }`}
             >
               {item.icon}
