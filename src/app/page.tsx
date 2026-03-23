@@ -315,16 +315,16 @@ export default function HomePage() {
 
       {/* 상단 헤더 */}
       <div className="glass-header px-5 pt-6 pb-4">
-        <p className="text-sm text-gray-400">{todayLabel}</p>
-        <h1 className="text-xl font-bold text-gray-900 mt-0.5">오늘의 가계부</h1>
+        <p className="fluid-caption text-gray-400">{todayLabel}</p>
+        <h1 className="fluid-heading font-bold text-gray-900 mt-0.5">오늘의 가계부</h1>
       </div>
 
-      <div className="px-4 py-4 space-y-4 max-w-2xl mx-auto">
+      <div className="px-4 py-4 md:px-6 md:py-6 space-y-4 max-w-2xl mx-auto">
         {/* 월별 필터 네비게이션 */}
         <div className="flex items-center justify-between">
           <button
             onClick={() => setViewMonth((m) => shiftMonth(m, -1))}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm text-gray-500 hover:bg-gray-50 active:scale-95 transition-all"
+            className="w-11 h-11 flex items-center justify-center rounded-full bg-white shadow-sm text-gray-500 hover:bg-gray-50 active:scale-95 transition-all"
             aria-label="이전 달"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">

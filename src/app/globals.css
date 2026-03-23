@@ -57,6 +57,27 @@
   --glass-border-strong: rgba(255, 255, 255, 0.8);
   --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
   --glass-shadow-inset: inset 0 4px 20px rgba(255, 255, 255, 0.3);
+
+  /* Fluid 타이포그래피 토큰 */
+  --text-heading: clamp(1.5rem, calc(1.2rem + 1.5vw), 2.25rem);
+  --text-subheading: clamp(1.125rem, calc(1rem + 0.5vw), 1.5rem);
+  --text-body: clamp(0.875rem, calc(0.8rem + 0.25vw), 1rem);
+  --text-caption: clamp(0.75rem, calc(0.7rem + 0.15vw), 0.875rem);
+  --text-amount: clamp(1.75rem, calc(1.5rem + 1vw), 2.5rem);
+
+  /* 8pt 그리드 간격 토큰 */
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-5: 2.5rem;
+  --space-6: 3rem;
+
+  /* Concentricity 형태 토큰 */
+  --radius-card: 1rem;
+  --radius-inner: 0.75rem;
+  --radius-button: 0.625rem;
+  --radius-capsule: 9999px;
 }
 
 /* 다크모드 변수 (.dark 클래스 전략) */
@@ -221,6 +242,39 @@ body {
     backdrop-filter: blur(12px) saturate(200%);
     -webkit-backdrop-filter: blur(12px) saturate(200%);
   }
+}
+
+/* ─── Fluid 타이포그래피 유틸리티 ─── */
+.fluid-heading { font-size: var(--text-heading); font-weight: 700; line-height: 1.2; }
+.fluid-subheading { font-size: var(--text-subheading); font-weight: 600; line-height: 1.3; }
+.fluid-body { font-size: var(--text-body); line-height: 1.5; }
+.fluid-caption { font-size: var(--text-caption); line-height: 1.4; }
+.fluid-amount { font-size: var(--text-amount); font-weight: 700; line-height: 1.1; }
+
+/* Capsule 형태 */
+.capsule { border-radius: var(--radius-capsule); }
+
+/* ─── Scroll Edge Effects ─── */
+@media (max-width: 767px) {
+  .scroll-edge-soft {
+    mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+  }
+}
+
+@media (min-width: 768px) {
+  .scroll-edge-hard {
+    border-bottom: 1px solid var(--glass-border);
+  }
+}
+
+/* 터치 타겟 최소 크기 */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* iOS safe area 하단 여백 지원 */
